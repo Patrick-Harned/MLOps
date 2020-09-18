@@ -52,7 +52,8 @@ digraph boxes_and_circles {
   # several 'edge' statements
   A -> 1
   1 -> 2
-  2 -> 4 [label='triggers image buiild, \n deploys container']
+  2 -> 4 
+  4 -> A [label='Accuracy Metrics']
   
 }
 ")
