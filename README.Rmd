@@ -1,0 +1,74 @@
+# Lowes
+
+## Solution Description:
+
+A Continous Delivery Integration Pipeline to manage MLOps workflows. The Pipeline will consist of a bitbucket or git repository storing source code for a machine learning model. Commits will trigger a container image build that will be deployed on an OCP cluster running Cloud Pak for Data. The Container will run code to 1. Store a machine learning model in a WML repository, create a deployment in WML for the model, create an openscale subscription for the model, score the model against target data set, return the quality metrics reported by openscale and then cleanup. 
+
+### Diagrams
+
+```{r}
+library(DiagrammeR)
+grViz("
+digraph boxes_and_circles {
+
+  # a 'graph' statement
+  graph [overlap = true, fontsize = 10]
+
+  # several 'node' statements
+  node [shape = record,
+        fontname = Helvetica]
+        A[label='Data Scientist']
+
+
+  node [shape = record,
+        fixedsize = false,
+        width = 0.9] // sets as circles
+  1[label ='{SrcRepository  }']
+  2[label = 'Jenkins Pipeline']
+
+  
+  subgraph cluster_0{
+  style=filled;
+		color=lightgrey;
+		node [style=filled,color=white, shape=record]
+		4[label='Trigger Container ']
+		label = 'OCP Platform';
+		4->5 [label='Deploys Model']
+		4->6 [label='Susbscribes Model']
+		
+		subgraph cluster_1{
+		style=filled;
+		color=lightblue;
+		label= 'CloudPak For Data'
+		node[style=filled,color=white]
+		5[label='WML']
+		6[label='AIOS']
+		7[label='ModelDeployment']
+		6 -> 7 [label='AIOS gathers \n accuracy metrics']
+		5->7
+		}
+  }
+
+  # several 'edge' statements
+  A -> 1
+  1 -> 2
+  2 -> 4 [label='triggers image buiild, \n deploys container']
+  
+}
+")
+
+```
+
+
+
+Using Jenkins for CI-CD
+
+Using a few different development environments
+
+External Repositories
+
+IMporting modesl from other development tools
+
+basic testing, validation check, security check
+
+Once 
