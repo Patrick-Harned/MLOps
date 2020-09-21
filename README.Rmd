@@ -1,41 +1,44 @@
-# Lowes
+---
+title: "Lowes"
+output: html_document
+---
 
 ## Solution Description:
 
 A Continous Delivery Integration Pipeline to manage MLOps workflows. The Pipeline will consist of a bitbucket or git repository storing source code for a machine learning model. Commits will trigger a container image build that will be deployed on an OCP cluster running Cloud Pak for Data. The Container will run code to 1. Store a machine learning model in a WML repository, create a deployment in WML for the model, create an openscale subscription for the model, score the model against target data set, return the quality metrics reported by openscale and then cleanup. 
 
-### Diagrams
+### Architecture Diagram
 
-```{r}
+```{r, echo=FALSE, fig.width=10, fig.height=10}
 library(DiagrammeR)
 grViz("
 digraph boxes_and_circles {
 
   # a 'graph' statement
-  graph [overlap = true, fontsize = 10]
+  graph [overlap = false, fontsize = 20, rankdir=TB, style=filled]
 
   # several 'node' statements
-  node [shape = record,
+  node [shape = doublecircle,
         fontname = Helvetica]
-        A[label='Data Scientist']
+        A[label='Data Scientist', shape=house]
 
 
   node [shape = record,
         fixedsize = false,
         width = 0.9] // sets as circles
-  1[label ='{SrcRepository  }']
-  2[label = 'Jenkins Pipeline']
+  1[label ='{SrcRepository | src/model/test.py,train.py | model.py,config.json }', shape=record]
+  
 
   
   subgraph cluster_0{
   style=filled;
 		color=lightgrey;
-		node [style=filled,color=white, shape=record]
-		4[label='Trigger Container ']
+		node [style=filled,color=white, shape=doublecircle]
+		4[label='Trigger Container ', shape = doublecircle]
 		label = 'OCP Platform';
 		4->5 [label='Deploys Model']
 		4->6 [label='Susbscribes Model']
-		
+		2[label = 'Jenkins Server', shape =doublecircle]
 		subgraph cluster_1{
 		style=filled;
 		color=lightblue;
@@ -48,12 +51,14 @@ digraph boxes_and_circles {
 		5->7
 		}
   }
+  
+  B[shape=cylinder, label = 'Performance metrics and logs']
 
   # several 'edge' statements
   A -> 1
   1 -> 2
   2 -> 4 
-  4 -> A [label='Accuracy Metrics']
+  4 -> B[label = 'Output from WML/OS']
   
 }
 ")
@@ -61,15 +66,19 @@ digraph boxes_and_circles {
 ```
 
 
+## Project Structure
 
-Using Jenkins for CI-CD
-
-Using a few different development environments
-
-External Repositories
-
-IMporting modesl from other development tools
-
-basic testing, validation check, security check
-
-Once 
+```project
+|   README.md
+|   Dockerfile
+|   bin/
+|    |  - __init__.py/init.sh 
+|    |
+|   model/
+|       |
+|       src/
+|         | -  model.py
+|         | -  config.json
+|         | -  train.py
+|         | -  test.py
+```
