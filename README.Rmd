@@ -1,6 +1,7 @@
 ---
 title: "Lowes"
-output: html_document
+output: github_document
+always_allow_html: true
 ---
 
 ## Solution Description:
