@@ -1,4 +1,4 @@
----
+
 title: "Lowes"
 
 ## Solution Description:
@@ -6,6 +6,7 @@ title: "Lowes"
 A Continous Delivery Integration Pipeline to manage MLOps workflows. The Pipeline will consist of a bitbucket or git repository storing source code for a machine learning model. Commits will trigger a container image build that will be deployed on an OCP cluster running Cloud Pak for Data. The Container will run code to 1. Store a machine learning model in a WML repository, create a deployment in WML for the model, create an openscale subscription for the model, score the model against target data set, return the quality metrics reported by openscale and then cleanup. 
 
 ### Architecture Diagram
+![Alt text](https://g.gravizo.com/source/custom_mark10/https%3A%2F%2Fraw.githubusercontent.com%2FPatrick-Harned%2Fmaster%2FREADME.md)
 
 ```
 ![Alt text](https://g.gravizo.com/source/custom_mark10/https%3A%2F%2Fraw.githubusercontent.com%2FPatrick-Harned%2Fmaster%2FREADME.md)
