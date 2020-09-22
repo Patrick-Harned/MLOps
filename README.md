@@ -1,39 +1,85 @@
-Solution Description:
----------------------
+---
+title: "Lowes"
 
-A Continous Delivery Integration Pipeline to manage MLOps workflows. The
-Pipeline will consist of a bitbucket or git repository storing source
-code for a machine learning model. Commits will trigger a container
-image build that will be deployed on an OCP cluster running Cloud Pak
-for Data. The Container will run code to 1. Store a machine learning
-model in a WML repository, create a deployment in WML for the model,
-create an openscale subscription for the model, score the model against
-target data set, return the quality metrics reported by openscale and
-then cleanup.
+## Solution Description:
+
+A Continous Delivery Integration Pipeline to manage MLOps workflows. The Pipeline will consist of a bitbucket or git repository storing source code for a machine learning model. Commits will trigger a container image build that will be deployed on an OCP cluster running Cloud Pak for Data. The Container will run code to 1. Store a machine learning model in a WML repository, create a deployment in WML for the model, create an openscale subscription for the model, score the model against target data set, return the quality metrics reported by openscale and then cleanup. 
 
 ### Architecture Diagram
 
-<!--html_preserve-->
+```
+![Alt text](https://g.gravizo.com/source/custom_mark10/https%3A%2F%2Fraw.githubusercontent.com%2FPatrick-Harned%2Fmaster%2FREADME.md)
+<details> 
+<summary></summary>
+custom_mark10
 
-<script type="application/json" data-for="htmlwidget-393b935ee405fc2b2604">{"x":{"diagram":"\ndigraph boxes_and_circles {\n\n  # a \"graph\" statement\n  graph [overlap = false, fontsize = 20, rankdir=TB, style=filled]\n\n  # several \"node\" statements\n  node [shape = doublecircle,\n        fontname = Helvetica]\n        A[label=\"Data Scientist\", shape=house]\n\n\n  node [shape = record,\n        fixedsize = false,\n        width = 0.9] // sets as circles\n  1[label =\"{SrcRepository | src/model/test.py,train.py | model.py,config.json }\", shape=record]\n  \n\n  \n  subgraph cluster_0{\n  style=filled;\n\t\tcolor=lightgrey;\n\t\tnode [style=filled,color=white, shape=doublecircle]\n\t\t4[label=\"Trigger Container \", shape = doublecircle]\n\t\tlabel = \"OCP Platform\";\n\t\t4->5 [label=\"Deploys Model\"]\n\t\t4->6 [label=\"Susbscribes Model\"]\n\t\t2[label = \"Jenkins Server\", shape =doublecircle]\n\t\tsubgraph cluster_1{\n\t\tstyle=filled;\n\t\tcolor=lightblue;\n\t\tlabel= \"CloudPak For Data\"\n\t\tnode[style=filled,color=white]\n\t\t5[label=\"WML\"]\n\t\t6[label=\"AIOS\"]\n\t\t7[label=\"ModelDeployment\"]\n\t\t6 -> 7 [label=\"AIOS gathers \n accuracy metrics\"]\n\t\t5->7\n\t\t}\n  }\n  \n  B[shape=cylinder, label = \"Performance metrics and logs\"]\n\n  # several \"edge\" statements\n  A -> 1\n  1 -> 2\n  2 -> 4 \n  4 -> B[label = \"Output from WML/OS\"]\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-<!--/html_preserve-->
+digraph boxes_and_circles {
 
-    plot(pressure)
+  # a 'graph' statement
+  graph [overlap = false, fontsize = 20, rankdir=TB, style=filled]
 
-![](README_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+  # several 'node' statements
+  node [shape = doublecircle,
+        fontname = Helvetica]
+        A[label='Data Scientist', shape=house]
 
-Project Structure
------------------
 
-    |   README.md
-    |   Dockerfile
-    |   bin/
-    |    |  - __init__.py/init.sh 
-    |    |
-    |   model/
-    |       |
-    |       src/
-    |         | -  model.py
-    |         | -  config.json
-    |         | -  train.py
-    |         | -  test.py
+  node [shape = record,
+        fixedsize = false,
+        width = 0.9] // sets as circles
+  1[label ='{SrcRepository | src/model/test.py,train.py | model.py,config.json }', shape=record]
+  
+
+  
+  subgraph cluster_0{
+  style=filled;
+		color=lightgrey;
+		node [style=filled,color=white, shape=doublecircle]
+		4[label='Trigger Container ', shape = doublecircle]
+		label = 'OCP Platform';
+		4->5 [label='Deploys Model']
+		4->6 [label='Susbscribes Model']
+		2[label = 'Jenkins Server', shape =doublecircle]
+		subgraph cluster_1{
+		style=filled;
+		color=lightblue;
+		label= 'CloudPak For Data'
+		node[style=filled,color=white]
+		5[label='WML']
+		6[label='AIOS']
+		7[label='ModelDeployment']
+		6 -> 7 [label='AIOS gathers \n accuracy metrics']
+		5->7
+		}
+  }
+  
+  B[shape=cylinder, label = 'Performance metrics and logs']
+
+  # several 'edge' statements
+  A -> 1
+  1 -> 2
+  2 -> 4 
+  4 -> B[label = 'Output from WML/OS']
+  
+}
+custom_mark10
+</details>
+```
+
+
+## Project Structure
+
+```project
+|   README.md
+|   Dockerfile
+|   bin/
+|    |  - __init__.py/init.sh 
+|    |
+|   model/
+|       |
+|       src/
+|         | -  model.py
+|         | -  config.json
+|         | -  train.py
+|         | -  test.py
+```
