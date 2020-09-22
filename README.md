@@ -85,18 +85,70 @@ You can use Gravizo including an image tag <img src='https://g.gravizo.com/svg? 
  }
 '/>
 
+![Alt text](https://g.gravizo.com/svg?
+  digraph G {
+    aize ="4,4";
+    main [shape=box];
+    main -> parse [weight=8];
+    parse -> execute;
+    main -> init [style=dotted];
+    main -> cleanup;
+    execute -> { make_string; printf}
+    init -> make_string;
+    edge [color=red];
+    main -> printf [style=bold,label="100 times"];
+    make_string [label="make a string"];
+    node [shape=box,style=filled,color=".7 .3 1.0"];
+    execute -> compare;
+  }
+)
 
 
-<img src='https://g.gravizo.com/svg?
- digraph boxes_and_circles {
+![Alt text](https://g.gravizo.com/svg?
+digraph boxes_and_circles {
 
   graph [overlap = false, fontsize = 20, rankdir=TB, style=filled]
 
   node [shape = doublecircle, fontname = Helvetica]
   A[label='Data Scientist', shape=house]
 
+
+  node [shape = record,fixedsize = false, width = 0.9]
+  1[label ='{SrcRepository | src/model/test.py,train.py | model.py,config.json }', shape=record]
   
-}'/>
+
+  
+  subgraph cluster_0{
+  style=filled;
+		color=lightgrey;
+		node [style=filled,color=white, shape=doublecircle]
+		4[label='Trigger Container ', shape = doublecircle]
+		label = 'OCP Platform';
+		4->5 [label='Deploys Model']
+		4->6 [label='Susbscribes Model']
+		2[label = 'Jenkins Server', shape =doublecircle]
+		subgraph cluster_1{
+		style=filled;
+		color=lightblue;
+		label= 'CloudPak For Data'
+		node[style=filled,color=white]
+		5[label='WML']
+		6[label='AIOS']
+		7[label='ModelDeployment']
+		6 -> 7 [label='AIOS gathers accuracy metrics']
+		5->7
+		}
+  }
+  
+  B[shape=cylinder, label = 'Performance metrics and logs']
+
+  # several 'edge' statements
+  A -> 1
+  1 -> 2
+  2 -> 4 
+  4 -> B[label = 'Output from WML/OS']
+  
+})
 
 
 
