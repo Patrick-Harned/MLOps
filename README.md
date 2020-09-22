@@ -67,22 +67,37 @@ custom_mark10
 </details>
 ```
 
+
+Simple html tag
+
+You can use Gravizo including an image tag <img src='https://g.gravizo.com/svg? follow by a graph description writed in DOT, PlantUML or UMLGraph, and then close the image tag
+
+<img src='https://g.gravizo.com/svg?
+ digraph G {
+   main -> parse -> execute;
+   main -> init;
+   main -> cleanup;
+   execute -> make_string;
+   execute -> printf
+   init -> make_string;
+   main -> printf;
+   execute -> compare;
+ }
+'/>
+
+
+
 <img src='https://g.gravizo.com/svg?
  digraph boxes_and_circles {
 
-  # a 'graph' statement
   graph [overlap = false, fontsize = 20, rankdir=TB, style=filled]
 
-  # several 'node' statements
-  node [shape = doublecircle,
-        fontname = Helvetica]
-        A[label='Data Scientist', shape=house]
+  node [shape = doublecircle, fontname = Helvetica]
+  A[label='Data Scientist', shape=house]
 
 
-  node [shape = record,
-        fixedsize = false,
-        width = 0.9] // sets as circles
-  1[label ='{SrcRepository | src/model/test.py,train.py | model.py,config.json }', shape=record]
+  node [shape = record, fixedsize = false, width = 0.9] 
+  1[label = '{SrcRepository | src/model/test.py,train.py | model.py,config.json }', shape=record]
   
 
   
@@ -103,21 +118,23 @@ custom_mark10
 		5[label='WML']
 		6[label='AIOS']
 		7[label='ModelDeployment']
-		6 -> 7 [label='AIOS gathers \n accuracy metrics']
+		6 -> 7 [label='AIOS gathers accuracy metrics']
 		5->7
 		}
   }
   
   B[shape=cylinder, label = 'Performance metrics and logs']
 
-  # several 'edge' statements
   A -> 1
   1 -> 2
   2 -> 4 
   4 -> B[label = 'Output from WML/OS']
   
-}
-'/>
+}'/>
+
+
+
+
 ## Project Structure
 
 ```project
