@@ -1,12 +1,17 @@
+Lowes
+================
+
 # Lowes
+
 ## Jenkins Pipeline for ML models on Cloud Pak for Data
 
-
-================
+\================
 
 # Solution Description:
 
----------------------
+-----
+
+## Solution Description:
 
 A Continous Delivery Integration Pipeline to manage MLOps workflows. The
 Pipeline will consist of a bitbucket or git repository storing source
@@ -19,20 +24,32 @@ target data set, return the quality metrics reported by openscale and
 then cleanup.
 
 ### Architecture Diagram
-![](plot.png)
 
-### Project Structure
------------------
+![](./plot.png)<!-- -->
 
-    |   README.md
-    |   Dockerfile
-    |   bin/
-    |    |  - __init__.py/init.sh 
-    |    |
-    |   model/
-    |       |
-    |       src/
-    |         | -  model.py
-    |         | -  config.json
-    |         | -  train.py
-    |         | -  test.py
+# Schedule
+
+| day       | task                           |
+| :-------- | :----------------------------- |
+| Monday    | Install Jenkins                |
+| Tuesday   | Deploy Hello World Application |
+| Wednesday | Deploy ML Model                |
+| Thursday  | Deploy OS Subscription         |
+| Friday    | Containerize                   |
+
+## Project Structure
+
+``` project
+|   README.md
+|   Dockerfile
+|   bin/
+|    |  - __init__.py/init.sh 
+|    |
+|   model/
+|       |
+|       src/
+|         | -  model.py
+|         | -  config.json
+|         | -  train.py
+|         | -  test.py
+```

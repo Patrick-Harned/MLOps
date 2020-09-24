@@ -3,6 +3,16 @@ title: "Lowes"
 output: github_document
 ---
 
+# Lowes
+## Jenkins Pipeline for ML models on Cloud Pak for Data
+
+
+================
+
+# Solution Description:
+
+---------------------
+
 ## Solution Description:
 
 A Continous Delivery Integration Pipeline to manage MLOps workflows. The Pipeline will consist of a bitbucket or git repository storing source code for a machine learning model. Commits will trigger a container image build that will be deployed on an OCP cluster running Cloud Pak for Data. The Container will run code to 1. Store a machine learning model in a WML repository, create a deployment in WML for the model, create an openscale subscription for the model, score the model against target data set, return the quality metrics reported by openscale and then cleanup. 
@@ -61,9 +71,22 @@ digraph boxes_and_circles {
   4 -> B[label = 'Output from WML/OS']
   
 }")
+
+
 ```
 
 
+```{r, echo=FALSE}
+knitr::include_graphics("./plot.png")
+```
+
+# Schedule  
+
+```{r, echo=FALSE}
+df = data.frame("day"=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), "task"=c("Install Jenkins", "Deploy Hello World Application", "Deploy ML Model", "Deploy OS Subscription", "Containerize"))
+
+knitr::kable(df)
+```
 
 ## Project Structure
 
