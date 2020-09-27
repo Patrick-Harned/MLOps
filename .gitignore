@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 lowes.Rproj
+.idea/
+__pycache__/ 
