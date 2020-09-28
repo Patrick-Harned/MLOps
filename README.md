@@ -3,6 +3,14 @@ Lowes
 
 # Lowes
 
+### Cluster Endpoint: <https://zen-cpd-zen.apps.pwh.ocp.csplab.local/zen/#/homepage>
+
+***Credentials Provisioned on Request***
+
+### Jenkins Service Endpoint: <https://jenkins-openshift.apps.pwh.ocp.csplab.local/>
+
+***Use the kubeadmin account.***
+
 ## Jenkins Pipeline for ML models on Cloud Pak for Data
 
 \================
@@ -29,13 +37,13 @@ then cleanup.
 
 # Schedule
 
-| day       | task                           |
-| :-------- | :----------------------------- |
-| Monday    | Install Jenkins                |
-| Tuesday   | Deploy Hello World Application |
-| Wednesday | Deploy ML Model                |
-| Thursday  | Deploy OS Subscription         |
-| Friday    | Containerize                   |
+| day       | task                           | status    |
+| :-------- | :----------------------------- | :-------- |
+| Monday    | Install Jenkins                | Completed |
+| Tuesday   | Deploy Hello World Application | pending   |
+| Wednesday | Deploy ML Model                | pending   |
+| Thursday  | Deploy OS Subscription         | pending   |
+| Friday    | Containerize                   | pending   |
 
 ## Issue
 
@@ -131,3 +139,35 @@ SDK as a dependency Note that two earlier versions of the WML client
 have been deprecated. The current release documentation is here:
 
 <http://ibm-wml-api-pyclient.mybluemix.net/>
+
+## Deploying Jenkins on Openshift 4.3
+
+This project uses Cloud Pak for Data on Openshift 4.3.5. In order to
+build our Jenkins CDI Pipeline, we will need a jenkins server. The
+Jenkins server is responsible for monitoring the repository for commits
+and performing the builds and deployments of our applications. You can
+deploy and run a Jenkins server anywhere however, as the container does
+not need to run on the same cluster as Cloud Pak for Data. The following
+instructions for installing a Jenkins server assume access to an
+Openshift4.x cluster
+
+1.  `oc project openshift` - change to the openshift project, which
+    contains some templates for deploying jenkins
+2.  `oc get templates | grep jenkins` - look for the jenkins-persistent
+    template
+3.  `oc get template jenkins-persistent -o yaml > jenkins.yaml` - output
+    the template to a yaml file so that we can update the required
+    parameters
+4.  `oc process --parameters -f jenkins.yaml` - check the paramaters for
+    anything you may want to change. Defaults are set for each of the
+    parameters, so its not necessary to pass any values to the
+    paramaters if you are comfortable with the defaults.
+5.  `oc process -f jenkins.yaml | oc create -f -` - create the jenkins
+    service ![](images/jenkins1.png)
+6.  `oc get pods` - check that the jenkins service is running
+7.  `oc get routes` - get the external route for the newly created
+    jenkins service
+8.  Navigate to the jenkins service and login with your openshift
+    credentials
+
+![](images/jenkins2.png)
