@@ -88,6 +88,13 @@ df = data.frame("day"=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
 knitr::kable(df)
 ```
 
+## Issue
+
+```{r, echo=FALSE}
+df = data.frame("issue"=c("Training Data"), "description"=c("In order to verify a succeful deployment the wmlpipeline class will need ability to access training data. How do we give the pipeline access to training data?"), "status"="unresolved")
+
+knitr::kable(df)
+```
 ## Project Structure
 
 ```project

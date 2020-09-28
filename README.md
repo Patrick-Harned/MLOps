@@ -37,6 +37,12 @@ then cleanup.
 | Thursday  | Deploy OS Subscription         |
 | Friday    | Containerize                   |
 
+## Issue
+
+| issue         | description                                                                                                                                                    | status     |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- |
+| Training Data | In order to verify a succeful deployment the wmlpipeline class will need ability to access training data. How do we give the pipeline access to training data? | unresolved |
+
 ## Project Structure
 
 ``` project
