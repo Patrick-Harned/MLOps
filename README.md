@@ -117,3 +117,11 @@ to allow for communicability with the external servers.
 
 The Datascientist will also have to provide a requirements.txt with any
 python packages that need to be installed to enable model.py to run.
+
+## Dependencies
+
+This project uses the ibm-watson-machine-learning version 1.0.5 python
+SDK as a dependency Note that two earlier versions of the WML client
+have been deprecated. The current release documentation is here:
+
+<http://ibm-wml-api-pyclient.mybluemix.net/>
