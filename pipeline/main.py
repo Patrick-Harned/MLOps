@@ -1,9 +1,18 @@
 
-from pipeline import *
+from pipeline import model, wml
+
+def main(model):
+
+    model=model.model()
+
+    print(model)
+
+    pipeline = wml.wmlpipeline(model)
+
+    print(pipeline)
+
+
+
 
 if __name__== "__main__":
-    train()
-    wml.hello_world()
-    aios.hello_world()
-    model = model.model()
-    print(model)
+    main(model)
