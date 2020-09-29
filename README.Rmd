@@ -98,7 +98,7 @@ knitr::kable(df)
 ## Issue
 
 ```{r, echo=FALSE}
-df = data.frame("issue"=c("Training Data"), "description"=c("In order to verify a succeful deployment the wmlpipeline class will need ability to access training data. How do we give the pipeline access to training data?"), "status"="unresolved")
+df = data.frame("issue"=c("Training Data", "LoadingModels"), "description"=c("In order to verify a succeful deployment the wmlpipeline class will need ability to access training data. How do we give the pipeline access to training data?", "Need to test storing an in memory model in the WML repository - if the model is in memory do I need to provide metadata"), "status"=c("unresolved", "unresolved") )
 
 knitr::kable(df)
 ```

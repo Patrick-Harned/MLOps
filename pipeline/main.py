@@ -1,11 +1,22 @@
 
 ## Driver Code
 
-from pipeline import model, wml
+import sys, os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+path, filename = os.path.split(dir_path)
+
+if path not in sys.path:
+    sys.path.append(path)
+
+
+from pipeline import model, wml, frameworks
+
+
 
 def main(model):
 
-    model=model.model()
+    model = frameworks.model_runtime_manager(model)
 
     print(model)
 
