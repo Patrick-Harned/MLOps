@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  pipeline:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    network_mode: "host"
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: host
+    environment:
+      - WML_USERNAME=admin
+      - WML_PASSWORD=password
+      - CP4D_URL=https://zen-cpd-zen.apps.pwh.ocp.csplab.local

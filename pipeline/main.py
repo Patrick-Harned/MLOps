@@ -20,9 +20,10 @@ def main(model):
 
     print(model)
 
-    pipeline = wml.wmlpipeline(model)
+    with wml.wmlpipeline(model) as pipeline:
+        pipeline = wml.wmlpipeline(model)
 
-    print(pipeline)
+
 
 
 
