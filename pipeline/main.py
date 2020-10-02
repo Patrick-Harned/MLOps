@@ -11,7 +11,8 @@ if path not in sys.path:
 
 
 from pipeline import model, wml, frameworks
-
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
 
 
 def main(model):
