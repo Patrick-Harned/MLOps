@@ -32,7 +32,7 @@ spec:
     stages {
         stage('Main') {
             steps {
-                sh 'python --version'
+                sh 'ls -al'
             }
         }
     }
