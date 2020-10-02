@@ -16,7 +16,7 @@ kind: Pod
 spec:
   containers:
   - name: shell
-    image: quay.io/openshift/origin-jenkins-agent-base@sha256:9dc88ba7b0522fb784626af9c545c4d10112f05e125e1c0d98efeb99cf97ecb4
+    image: python:3.6
     command:
     - sleep
     args:
@@ -32,7 +32,6 @@ spec:
     stages {
         stage('Main') {
             steps {
-            	sh 'subscription-manager repos --enable rhel-7-server-optional-rpms --enable rhel-7-server-extras-rpms'
                 sh 'pip install --no-cache-dir -r requirements.txt'
                 sh 'python ./pipeline/main.py'
             }
