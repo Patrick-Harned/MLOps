@@ -32,9 +32,11 @@ spec:
     stages {
         stage('Main') {
             steps {
-                sh 'ls -al'
+                sh 'pip install --no-cache-dir -r requirements.txt'
+                sh 'python ./pipeline/main.py'
             }
         }
+
     }
 }
 
