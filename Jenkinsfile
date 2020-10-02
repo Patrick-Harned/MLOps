@@ -32,6 +32,7 @@ spec:
     stages {
         stage('Main') {
             steps {
+            	sh 'subscription-manager repos --enable rhel-7-server-optional-rpms --enable rhel-7-server-extras-rpms'
                 sh 'pip install --no-cache-dir -r requirements.txt'
                 sh 'python ./pipeline/main.py'
             }
