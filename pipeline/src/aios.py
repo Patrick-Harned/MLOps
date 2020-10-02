@@ -1,2 +1,4 @@
-def hello_world():
-    print("hello world")
+from .wml import wmlpipeline
+class aios(wmlpipeline):
+    def __init__(self):
+
