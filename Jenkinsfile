@@ -1,24 +1,40 @@
+// Uses Declarative syntax to run commands inside a container.
 pipeline {
-    agent { dockerfile true }
+    agent {
+        kubernetes {
+            // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
+            // Or, to avoid YAML:
+            // containerTemplate {
+            //     name 'shell'
+            //     image 'ubuntu'
+            //     command 'sleep'
+            //     args 'infinity'
+            // }
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: shell
+    image: quay.io/openshift/origin-jenkins-agent-base@sha256:9dc88ba7b0522fb784626af9c545c4d10112f05e125e1c0d98efeb99cf97ecb4
+    command:
+    - sleep
+    args:
+    - infinity
+'''
+            // Can also wrap individual steps:
+            // container('shell') {
+            //     sh 'hostname'
+            // }
+            defaultContainer 'shell'
+        }
+    }
     stages {
-        stage('Deploy') {
+        stage('Main') {
             steps {
-                echo 'Running Container'
-	    }
-        }
-        stage('Testing Deployment') {
-            steps {
-                # curl command to WML to see if model was deployed successfully
-                echo 'Test WML Deployment'
-		        sleep 1
-            }
-        }
-        stage('Return results of testing Data') {
-            steps {
-                # OpenScale
-                echo 'OpenScale Evaluation'
-		        sleep 1
+                sh 'python --version'
             }
         }
     }
 }
+
