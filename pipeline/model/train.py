@@ -19,6 +19,9 @@ def pickle(clf):
 
 clf = train()
 
-s = pickle(clf)
+from sklearn.pipeline import Pipeline
 
-s
+pipeline = Pipeline([('svc', clf)])
+
+s = pickle(pipeline)
+

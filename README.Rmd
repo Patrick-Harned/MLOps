@@ -182,7 +182,7 @@ The Datascientist will also have to provide a requirements.txt with any python p
 This project uses the ibm-watson-machine-learning version 1.0.5 python SDK as a dependency Note that two earlier versions of the WML client have been deprecated. The current release documentation is here:
 
 http://ibm-wml-api-pyclient.mybluemix.net/ 
-
+https://github.com/IBM/watson-machine-learning-samples/tree/master/notebooks/python_sdk
 ## Deploying Jenkins on Openshift 4.3
 
 This project uses Cloud Pak for Data on Openshift 4.3.5. In order to build our Jenkins CDI Pipeline, we will need a jenkins server. The Jenkins server is responsible for monitoring the repository for commits and performing the builds and deployments of our applications. You can deploy and run a Jenkins server anywhere however, as the container does not need to run on the same cluster as Cloud Pak for Data. The following instructions for installing a Jenkins server assume access to an Openshift4.x cluster
@@ -198,3 +198,11 @@ This project uses Cloud Pak for Data on Openshift 4.3.5. In order to build our J
 8. Navigate to the jenkins service and login with your openshift credentials
 
 ![](images/jenkins2.png)
+## Configuring Jenkins to Communicate with Kubernetes
+
+Jenkins supports a number of 'agents'. An agent is an executor for a pipeline. Supported executors include docker, node, kubernetes. Docker and Kubernetes are considered 'Cloud agents' By default deploying Jenkins on Openshift you have access to the Kubernetes Cloud as an agent for running jenkins for Jenkins jobs.
+1. Ensure all plugins, particularly the Kubernetes plugin, are up to date. 
+2. Navigate to Manager Jenkins, System Configuration -> Cloud Providers -> Kubernetes. You will see that you have a Kubernetes cloud provider already configured as an agent to run Jenkins job. However the name tag (with the value openshift) may interfere with jenkins ability to find the agent. Change 'openshift' to kubernetes and run a sample pipeline to confirm that Jenkins can communicate with Openshift.
+
+## Add git secrets to Kubernets for secure pull access
+
