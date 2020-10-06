@@ -130,6 +130,9 @@ class Pipeline:
         print("Deployment succesful! at " + str(self.deployment))
 
     def score_deployed_model(self):
+        request_data = {self.__connection.client.deployments.ScoringMetaNames.INPUT_DATA: [{"fields":self._dataset.data.columns.tolist(), "values":self._dataset.data.values.tolist()}]}
+        prediction = self.__connection.client.deployments.score(self.deployment_uid, request_data)
+        print(prediction)
 
 
     def _init_cleanup(self, namespace):
@@ -258,6 +261,9 @@ class PipelineDirector:
 
         deployed_model = self.__builder.get_deployment()
         pipeline.set_deployed_model(deployed_model)
+
+        pipeline.score_deployed_model()
+
         pipeline._init_cleanup(namespace)
 
 

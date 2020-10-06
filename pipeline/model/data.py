@@ -4,7 +4,7 @@ import pandas as pd
 
 data = pd.DataFrame(digits.data[:-1])
 
-data.to_csv('data.csv')
+data.to_csv('data.csv', index=False)
 from ibm_watson_machine_learning import APIClient
 credentials = {"username":"admin", "password":"password", "url":"https://zen-cpd-zen.apps.pwh.ocp.csplab.local","instance_id":"wml_local", "version":"3.0.0"}
 client = APIClient(credentials)

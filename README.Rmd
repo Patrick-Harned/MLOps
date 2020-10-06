@@ -206,7 +206,7 @@ Jenkins supports a number of 'agents'. An agent is an executor for a pipeline. S
 
 ## Model Scoring
 
-Model Scoring and testing is supported using project_lib to fetch training data from a connection or file. The data asset must be available on Cloud Pak for Data to enable scoring. In the following example we use the training data set to create a data asset on CP4D that can be used to score the model 
+Model Scoring and testing is supported using project_lib to fetch training data from a connection or file. The data asset must be available on Cloud Pak for Data to enable scoring. In the following example we use the training data set to create a data asset on CP4D that can be used to score the model. In order for scoring to work properly, 
 
 
 ```
@@ -217,15 +217,18 @@ digits = datasets.load_digits()
 
 training_data = pd.DataFrame(digits.data[:-1])
 
-training_data.to_csv('training_data.csv')
+training_data.to_csv('training_data.csv', index=False)
 
 from ibm_watson_machine_learning import APIClient
 
 client = APIClient({"username":"admin","password":"password", "url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "instance_id":"wml_local", "version ":"3.0.1"})
 
-client.data_assets.create('trainind_data.csv', 'training_data.csv')
+client.data_assets.create('training_data.csv', 'training_data.csv')
 
 client.data_assets.list()
 ```
 
+### NOTE
+
+When exporting a dataset to a dataframe, the python pandas library will automatically include an index column in the dataset, which if included will interfere with scoring. Make sure that the target dataset it exported without an index.
 
