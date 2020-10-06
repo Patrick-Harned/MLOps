@@ -1,4 +1,4 @@
-from pipeline.src import wml, aios
+from pipeline.test import wml, aios
 #from pipeline.model import model
 from pipeline.src.core_models import Model, ModelDirector, ScikitLearnModelBuilder
 from pipeline.src.pipeline import  ModelPipelineBuilder, PipelineDirector

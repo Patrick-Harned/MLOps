@@ -9,8 +9,6 @@ path, filename = os.path.split(dir_path)
 if path not in sys.path:
     sys.path.append(path)
 
-from pipeline import model, wml, frameworks
-
 from pipeline import *
 
 def main():

@@ -40,10 +40,10 @@ then cleanup.
 | day       | task                           | status    |
 | :-------- | :----------------------------- | :-------- |
 | Monday    | Install Jenkins                | Completed |
-| Tuesday   | Deploy Hello World Application | pending   |
-| Wednesday | Deploy ML Model                | pending   |
+| Tuesday   | Deploy Hello World Application | Completed |
+| Wednesday | Deploy ML Model                | Completed |
 | Thursday  | Deploy OS Subscription         | pending   |
-| Friday    | Containerize                   | pending   |
+| Friday    | Containerize                   | Completed |
 
 ## Issue
 
@@ -187,6 +187,45 @@ already configured as an agent to run Jenkins job. However the name tag
 the agent. Change ‘openshift’ to kubernetes and run a sample pipeline to
 confirm that Jenkins can communicate with Openshift.
 
-## Add git secrets to Kubernets for secure pull access
+## Model Scoring
 
-1.
+Model Scoring and testing is supported using project\_lib to fetch
+training data from a connection or file. The data asset must be
+available on Cloud Pak for Data to enable scoring. In the following
+example we use the training data set to create a data asset on CP4D that
+can be used to score the model.
+
+    import pandas as pd
+    from sklearn import datasets
+    
+    digits = datasets.load_digits()
+    
+    training_data = pd.DataFrame(digits.data[:-1])
+    
+    training_data.to_csv('training_data.csv', index=False)
+    
+    from ibm_watson_machine_learning import APIClient
+    
+    client = APIClient({"username":"admin","password":"password", "url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "instance_id":"wml_local", "version ":"3.0.1"})
+    
+    client.data_assets.create('training_data.csv', 'training_data.csv')
+    
+    client.data_assets.list()
+
+### NOTE
+
+When exporting a dataset to a dataframe, the python pandas library will
+automatically include an index column in the dataset, which if included
+will interfere with scoring. Make sure that the target dataset it
+exported without an index.
+
+## Jenkins Script using the cpdctl command line interface.
+
+1.  Add a user to the cpdctl cli
+
+`cpdctl config users set qa-user --username=<username>
+--password=<password>`
+
+2.  Add the cluster with the url `cpdctl config clusters set qa-cluster
+    --user qa-user --url <cluster_url>`
+3.  \`add the context
