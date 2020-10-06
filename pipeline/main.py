@@ -17,6 +17,7 @@ def main():
     import sys
     modeltype = sys.argv[1]
     project_name = sys.argv[2]
+    dataset_name = sys.argv[3]
     print(modeltype)
 
 
@@ -24,7 +25,7 @@ def main():
     pipelinebuilder = ModelPipelineBuilder()
     director = PipelineDirector()
     director.setBuilder(pipelinebuilder)
-    pipeline = director.getPipeline(modeltype,project_name)
+    pipeline = director.getPipeline(modeltype,project_name, dataset_name)
 
     pipeline.specification()
 

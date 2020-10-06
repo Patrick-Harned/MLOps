@@ -204,7 +204,28 @@ Jenkins supports a number of 'agents'. An agent is an executor for a pipeline. S
 1. Ensure all plugins, particularly the Kubernetes plugin, are up to date. 
 2. Navigate to Manager Jenkins, System Configuration -> Cloud Providers -> Kubernetes. You will see that you have a Kubernetes cloud provider already configured as an agent to run Jenkins job. However the name tag (with the value openshift) may interfere with jenkins ability to find the agent. Change 'openshift' to kubernetes and run a sample pipeline to confirm that Jenkins can communicate with Openshift.
 
-## Add git secrets to Kubernets for secure pull access
+## Model Scoring
 
-1.
+Model Scoring and testing is supported using project_lib to fetch training data from a connection or file. The data asset must be available on Cloud Pak for Data to enable scoring. In the following example we use the training data set to create a data asset on CP4D that can be used to score the model 
+
+
+```
+import pandas as pd
+from sklearn import datasets
+
+digits = datasets.load_digits()
+
+training_data = pd.DataFrame(digits.data[:-1])
+
+training_data.to_csv('training_data.csv')
+
+from ibm_watson_machine_learning import APIClient
+
+client = APIClient({"username":"admin","password":"password", "url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "instance_id":"wml_local", "version ":"3.0.1"})
+
+client.data_assets.create('trainind_data.csv', 'training_data.csv')
+
+client.data_assets.list()
+```
+
 

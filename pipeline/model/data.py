@@ -18,8 +18,8 @@ def get_bearer_token():
 token = get_bearer_token()
 def get_project_list():
     headers = {"content-type":"application/json", "Accept":"application/json", "Authorization":"Bearer " +token}
-    project_id =  [x.get('metadata').get('guid') for x in requests.get(credentials.get('url')+'/v2/projects/',headers=headers, verify=False  ).json().get('resources')[0] ]
-    return [x for x in requests.get(credentials.get('url')+'/v2/asset_files/data_asset?project_id='+project_id,headers=headers, verify=False  ).json() ]
+    project_id =  [x.get('entity').get('name') for x in requests.get(credentials.get('url')+'/v2/projects/',headers=headers, verify=False  ).json().get('resources') ]
+    return project_id
 
 
 
@@ -32,3 +32,4 @@ print(project_id)
 
 #client.data_assets.create('data.csv', 'data.csv')
 #client.data_assets.list()
+

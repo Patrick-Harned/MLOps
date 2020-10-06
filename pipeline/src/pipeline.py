@@ -18,6 +18,11 @@ class Namespace:
 class Project:
     def __init__(self, project_name):
         self.name = project_name
+
+class DataSet:
+    def __init__(self, name):
+        self.name = name
+    data = None
 #Director
 class Pipeline:
     def __init__(self):
@@ -47,8 +52,39 @@ class Pipeline:
 
         headers = {"content-type": "application/json", "Accept": "application/json",
                        "Authorization": "Bearer " + token}
-        project_list = requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources')
-        project_list = list(map(lambda x: x.get('metadata').get('guid')  if x.get('entity').get('name')==self.__project.name else None, project_list))
+        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
+        self.__connection.client.set.default_project(project_list[0])
+
+        def get_asset_details(self):
+            from io import StringIO
+            import sys
+            temp_out = StringIO()
+            sys.stdout = temp_out
+            self.data_assets.list()
+            sys.stdout = sys.__stdout__
+            tempout2 = temp_out.getvalue().split('\n')
+            keys = [x.split(' ') for x in tempout2][1]
+            keys = [x.lower() for x in keys if len(x) != 0]
+            end = len(tempout2) - 2
+            values = [[x for x in x.split(' ') if len(x) != 0] for x in tempout2 if len(x) != 0]
+            new_list = []
+            for i in range(2, end):
+                new_list.append(dict(zip(keys, values[i])))
+            return new_list
+
+        import types
+        funcType = types.MethodType
+        self.__connection.client.get_asset_details = funcType(get_asset_details, self.__connection.client)
+
+    def set_data(self, dataset):
+
+        self._dataset = dataset
+        uid  = list(map(lambda x: x.get('asset_id') if x.get('name')==self._dataset.name else None, self.__connection.client.get_asset_details()))
+        self._dataset.data = self.__connection.client.data_assets.download(uid[0], 'data.csv')
+        import pandas as pd
+        self._dataset.data = pd.read_csv('data.csv')
+        print(self._dataset.data.head())
+
 
 
 
@@ -93,6 +129,9 @@ class Pipeline:
         self.deployment_uid = self.deployment.get('metadata').get('guid')
         print("Deployment succesful! at " + str(self.deployment))
 
+    def score_deployed_model(self):
+
+
     def _init_cleanup(self, namespace):
         self.__namespace = namespace
 
@@ -118,6 +157,7 @@ class Pipeline:
         print("type: %s" % self.__stored_model.model._software_spec.definition)
         print("namespacename: %s" % self.__namespace.name)
         print("projectt %s  " % self.__project.name)
+        print(self.__connection.client.get_asset_details())
 
 
 class PipelineBuilder:
@@ -125,6 +165,7 @@ class PipelineBuilder:
     def get__namespaces(self): pass
     def get_stored_model(self): pass
     def get_deployment(self): pass
+    def get_data(selfs): pass
 
 class ModelPipelineBuilder(PipelineBuilder):
 
@@ -162,6 +203,9 @@ class ModelPipelineBuilder(PipelineBuilder):
         storedModel.model = model
 
         return storedModel
+    def get_dataset(self, dataset_name):
+        data = DataSet(dataset_name)
+        return data
 
     def get_deployment(self):
         deployment = Deployment()
@@ -180,7 +224,7 @@ class PipelineDirector:
     def setBuilder(self, builder):
         self.__builder = builder
 
-    def getPipeline(self, builder_type, project_name):
+    def getPipeline(self, builder_type, project_name, dataset_name):
         pipeline = Pipeline()
 
 
@@ -194,12 +238,17 @@ class PipelineDirector:
         pipeline._init_cleanup(namespace)
 
         # then the namespaces
+        project = self.__builder.get_project(project_name=project_name)
+        pipeline.set_project(project)
+        ## add the training data
+        dataset = self.__builder.get_dataset(dataset_name)
+        pipeline.set_data(dataset)
+
 
         pipeline.set__namespace(namespace)
 
         # then the project
-        project = self.__builder.get_project(project_name=project_name)
-        pipeline.set_project(project)
+
 
         # Then engine
         stored_model = self.__builder.get_stored_model(builder_type)
