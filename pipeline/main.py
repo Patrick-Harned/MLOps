@@ -9,25 +9,31 @@ path, filename = os.path.split(dir_path)
 if path not in sys.path:
     sys.path.append(path)
 
-
 from pipeline import model, wml, frameworks
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 
+from pipeline import *
 
-def main(model):
-
-    model = frameworks.model_runtime_manager(model)
-
-    print(model)
-
-    with wml.wmlpipeline(model) as pipeline:
-        pipeline = wml.wmlpipeline(model)
+def main():
+    import sys
+    modeltype = sys.argv[1]
+    project_name = sys.argv[2]
+    print(modeltype)
 
 
 
+    pipelinebuilder = ModelPipelineBuilder()
+    director = PipelineDirector()
+    director.setBuilder(pipelinebuilder)
+    pipeline = director.getPipeline(modeltype,project_name)
+
+    pipeline.specification()
 
 
 
-if __name__== "__main__":
-    main(model)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
