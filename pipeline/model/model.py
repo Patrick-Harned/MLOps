@@ -1,4 +1,6 @@
 def model():
+    import sklearn
+    print(sklearn.__version__)
 
 
     import os
@@ -9,3 +11,4 @@ def model():
     model = pickle.load(open(file_path, 'rb'))
     return model
 
+print(dir(model()))

@@ -25,3 +25,5 @@ pipeline = Pipeline([('svc', clf)])
 
 s = pickle(pipeline)
 
+
+
