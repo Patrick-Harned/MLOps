@@ -9,3 +9,4 @@ __pycache__/
 password
 keys/
 data.csv
+conda_env
