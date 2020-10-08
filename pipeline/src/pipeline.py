@@ -80,9 +80,9 @@ class Pipeline:
 
         self._dataset = dataset
         uid  = list(map(lambda x: x.get('asset_id') if x.get('name')==self._dataset.name else None, self.__connection.client.get_asset_details()))
-        self._dataset.data = self.__connection.client.data_assets.download(uid[0], 'data.csv')
+        self._dataset.data = self.__connection.client.data_assets.download(uid[0], self._dataset.name)
         import pandas as pd
-        self._dataset.data = pd.read_csv('data.csv')
+        self._dataset.data = pd.read_csv(self._dataset.name)
         print(self._dataset.data.head())
 
 
@@ -172,7 +172,7 @@ class PipelineBuilder:
 
 class ModelPipelineBuilder(PipelineBuilder):
 
-    __choices = {'scikit-learn_0.22-py3.6':ScikitLearnModelBuilder}
+    __choices = {'scikit-learn_0.22-py3.6' : ScikitLearnModelBuilder}
 
 
 

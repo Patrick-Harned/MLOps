@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.6
 
 WORKDIR /usr/src/app
 
@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./pipeline/main.py" ]
+CMD [ "python", "python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv" ]
