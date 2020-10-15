@@ -1,7 +1,7 @@
 Lowe's
 ================
 
-# Lowes
+# Lowe's
 
 ### Cluster Endpoint: <https://zen-cpd-zen.apps.pwh.ocp.csplab.local/zen/#/homepage>
 
