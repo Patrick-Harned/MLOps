@@ -13,7 +13,7 @@ class Deployment:
     deployedModel = None
 
 class Namespace:
-    name = "jenkinstestspace"
+    name = "prod-space"
 
 class Project:
     def __init__(self, project_name):
