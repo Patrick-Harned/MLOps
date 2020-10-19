@@ -85,9 +85,6 @@ class Pipeline:
         self._dataset.data = pd.read_csv(self._dataset.name)
         print(self._dataset.data.head())
 
-
-
-
     def set__namespace(self, namespace):
         self.__namespace = namespace
         spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None,
@@ -99,7 +96,6 @@ class Pipeline:
         uid = default_space.get('metadata').get('guid')
         self.__connection.client.set.default_space(uid)
         print("Creating namespace " + self.__namespace.name)
-
 
     def set_stored_model(self, stored_model):
         self.__stored_model = stored_model
@@ -162,6 +158,10 @@ class Pipeline:
         print("projectt %s  " % self.__project.name)
         print(self.__connection.client.get_asset_details())
 
+    def set_open_scale(self):
+        print("Here Brandon")
+        print(self.__connection.client)
+
 
 class PipelineBuilder:
     def get_connection(self): pass
@@ -175,22 +175,17 @@ class ModelPipelineBuilder(PipelineBuilder):
     __choices = {'scikit-learn_0.22-py3.6' : ScikitLearnModelBuilder}
 
 
-
     def get_connection(self):
-
-
         connection = Connection()
         return connection
 
     def get__namespace(self):
         namespace = Namespace()
-
         return namespace
 
     def get_project(self, project_name):
         project = Project(project_name)
         return project
-
 
     def get_stored_model(self, builder_type):
         modelbuilder = self.__choices.get(builder_type)()  # initializing the class
@@ -204,8 +199,8 @@ class ModelPipelineBuilder(PipelineBuilder):
         model.specification()
         storedModel= StoredModel()
         storedModel.model = model
-
         return storedModel
+
     def get_dataset(self, dataset_name):
         data = DataSet(dataset_name)
         return data
@@ -214,10 +209,6 @@ class ModelPipelineBuilder(PipelineBuilder):
         deployment = Deployment()
         deployment.deployedModel = "deployedModel"
         return deployment
-
-
-
-
 
 
 
@@ -263,6 +254,9 @@ class PipelineDirector:
         pipeline.set_deployed_model(deployed_model)
 
         pipeline.score_deployed_model()
+
+        # then OpenScale
+        pipeline.set_open_scale()
 
         pipeline._init_cleanup(namespace)
 
