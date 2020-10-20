@@ -1,7 +1,5 @@
-Lowes
+Lowe's
 ================
-
-# Lowes
 
 ### Cluster Endpoint: <https://zen-cpd-zen.apps.pwh.ocp.csplab.local/zen/#/homepage>
 
@@ -229,3 +227,4 @@ exported without an index.
 2.  Add the cluster with the url `cpdctl config clusters set qa-cluster
     --user qa-user --url <cluster_url>`
 3.  \`add the context
+

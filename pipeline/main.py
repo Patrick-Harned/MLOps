@@ -19,11 +19,10 @@ def main():
     print(modeltype)
 
 
-
     pipelinebuilder = ModelPipelineBuilder()
     director = PipelineDirector()
     director.setBuilder(pipelinebuilder)
-    pipeline = director.getPipeline(modeltype,project_name, dataset_name)
+    pipeline = director.getPipeline(modeltype, project_name, dataset_name)
 
     pipeline.specification()
 
