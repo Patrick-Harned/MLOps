@@ -92,6 +92,7 @@ class Pipeline:
         self.__namespace = namespace
         spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None,
                      self.__connection.client.spaces.get_details().get('resources'))
+        spaces = [x for x in spaces if x is not None]
         for space in spaces:
             self.__connection.client.spaces.delete(space)
         default_space = self.__connection.client.spaces.store(
