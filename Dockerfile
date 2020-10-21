@@ -7,5 +7,5 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-
-CMD [ "python", "python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv" ]
+RUN  ls pipeline
+CMD [  "python", "pipeline/main.py", "scikit-learn_0.22-py3.6", "mlops", "data.csv" ]
