@@ -25,6 +25,7 @@ class DataSet:
     data = None
 #Director
 class Pipeline:
+    '''Object that represents a WML deployed ML model'''
     def __init__(self):
         self.__connection = None
         self.__stored_model = None
@@ -32,6 +33,7 @@ class Pipeline:
         self.__project = None
 
     def set_connection(self, connection):
+        '''Set WML python client'''
         defaults = {"WML_USERNAME": "admin", "WML_PASSWORD": "password",
                     "CP4D_URL": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local"}
         values = ['WML_USERNAME', "WML_PASSWORD", "CP4D_URL"]
@@ -44,6 +46,10 @@ class Pipeline:
         self.__connection = connection
 
     def set_project(self, project):
+        ''' 
+        set default project for wml python client + define client method 
+        to extract asset details
+        '''
         self.__project = project
         import requests, json
 
@@ -77,6 +83,10 @@ class Pipeline:
         self.__connection.client.get_asset_details = funcType(get_asset_details, self.__connection.client)
 
     def set_data(self, dataset):
+        '''
+        Downloads data set stored in CP4D project data assets. The deployed 
+        model will be used to make predictions on the downloaded dataset. 
+        '''
 
         self._dataset = dataset
         uid  = list(map(lambda x: x.get('asset_id') if x.get('name')==self._dataset.name else None, self.__connection.client.get_asset_details()))
@@ -99,6 +109,7 @@ class Pipeline:
         print("Creating namespace " + self.__namespace.name)
 
     def set_stored_model(self, stored_model):
+        '''Deploy a python ML model i.e. store it in the WML instance's repository'''
         self.__stored_model = stored_model
         sofware_spec_uid = self.__connection.client.software_specifications.get_id_by_name(self.__stored_model.model._software_spec.definition)
 
@@ -189,19 +200,20 @@ class ModelPipelineBuilder(PipelineBuilder):
         return project
 
     def get_stored_model(self, builder_type):
+        '''get a python ML model object to deploy'''
         modelbuilder = self.__choices.get(builder_type)()  # initializing the class
         print(modelbuilder)
-        director = ModelDirector()
+        model_director = ModelDirector()
 
         # Build Model
 
-        director.setBuilder(modelbuilder)
-        model = director.getModel()
+        model_director.setBuilder(modelbuilder)
+        model = model_director.getModel()
         model.specification()
         storedModel= StoredModel()
         storedModel.model = model
         return storedModel
-
+        
     def get_dataset(self, dataset_name):
         data = DataSet(dataset_name)
         return data
@@ -220,6 +232,7 @@ class PipelineDirector:
         self.__builder = builder
 
     def getPipeline(self, builder_type, project_name, dataset_name):
+        '''set up Deployment, predict on newdata, and teardown deployment'''
         pipeline = Pipeline()
 
 

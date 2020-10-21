@@ -2,6 +2,10 @@ import os
 from ibm_watson_machine_learning import APIClient
 
 class ModelDirector:
+    '''
+    Builds a model obj with attributes including a ML model, and the 
+    software/package specifications of that ML model.
+    '''  
     __builder = None
 
     def setBuilder(self, builder):
@@ -28,6 +32,10 @@ class ModelDirector:
 
 # The whole product
 class Model:
+    '''
+    A model obj with attributes including a ML model, and the 
+    software/package specifications of that ML model.
+    '''
     def __init__(self):
         self._software_spec = None
         self._type = None
@@ -58,12 +66,15 @@ class Builder:
 
 
 class ScikitLearnModelBuilder(Builder):
+    '''Concreate Builder the produces attributes a sklearn ML model, and the 
+    software/package specifications of that ML model.'''
     def __init__(self):
         import subprocess, sys
         subprocess.check_call([sys.executable, '-m', 'pip', 'install','scikit-learn'])
         import sklearn
 
     def getModel(self):
+        # requires model object to be return by function located in pipeline/model/model.py
         from pipeline.model.model import model as object
         modelobject=ModelObject()
         modelobject.model= object()
