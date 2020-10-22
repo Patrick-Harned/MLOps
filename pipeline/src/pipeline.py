@@ -1,6 +1,14 @@
 import os
 from ibm_watson_machine_learning import APIClient
+from ibm_ai_openscale import APIClient4ICP
+from ibm_ai_openscale.engines import WatsonMachineLearningAsset
+from ibm_ai_openscale.engines import WatsonMachineLearningInstance4ICP
+from ibm_ai_openscale.supporting_classes import PayloadRecord
 from pipeline.src.core_models import ScikitLearnModelBuilder, ModelDirector
+from ibm_ai_openscale.supporting_classes.enums import ProblemType
+from ibm_ai_openscale.supporting_classes.enums import FeedbackFormat
+import csv
+import time
 # Pipeline Parts
 
 class Connection:
@@ -159,9 +167,44 @@ class Pipeline:
         print("projectt %s  " % self.__project.name)
         print(self.__connection.client.get_asset_details())
 
-    def set_open_scale(self):
-        print("Here Brandon")
-        print(self.__connection.client)
+    def set_openscale(self):
+        self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})
+
+    def add_openscale_model(self):
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials={"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}))
+        subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid=self.model_artifact.get("metadata").get("id"), prediction_column='prediction'))
+        subscription.payload_logging.enable()
+        subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION)
+
+        dataset_name = "test_data.csv"
+        with open(dataset_name) as csvfile:
+            rows = [row for row in csv.reader(csvfile, delimiter=',')]
+            features = rows[0]
+            records = rows[1:min(len(rows),1001)]
+            X_columns = features[:-1]
+            X_Train = [row[:-1] for row in records]
+        payload = {self.__connection.client.deployments.ScoringMetaNames.INPUT_DATA: [{'fields': X_columns, 'values': X_Train}]}
+        scoring_response = self.__connection.client.deployments.score(self.deployment_uid, payload)
+
+        #print(subscription.feedback_logging.print_table_schema())
+        payload_records = [PayloadRecord(request = {'fields': X_columns, 'values': X_Train}, response = scoring_response)]
+        subscription.payload_logging.store(records = payload_records)
+        time.sleep(30)
+        #print(subscription.performance_monitoring.show_table())
+        #print(subscription.payload_logging.show_table())
+        #subscription.feedback_logging.store(open('test_data.csv', mode="rb").read(), feedback_format=FeedbackFormat.CSV, data_header=False)
+        subscription.quality_monitoring.enable(threshold = 0.9, min_records = 10)
+        time.sleep(30)
+        subscription.feedback_logging.store(feedback_data = records)#, fields = features)
+
+        #print(subscription.feedback_logging.print_table_schema())
+
+        #print(subscription.get_details())
+        #subscription.feedback_logging.store(values)
+        time.sleep(30)
+        run_details = subscription.quality_monitoring.run(background_mode=False)
+        print(subscription.quality_monitoring.show_table())
+
 
 
 class PipelineBuilder:
@@ -257,7 +300,8 @@ class PipelineDirector:
         pipeline.score_deployed_model()
 
         # then OpenScale
-        pipeline.set_open_scale()
+        pipeline.set_openscale()
+        pipeline.add_openscale_model()
 
         pipeline._init_cleanup(namespace)
 
