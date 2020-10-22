@@ -62,7 +62,7 @@ class Pipeline:
 
         headers = {"content-type": "application/json", "Accept": "application/json",
                        "Authorization": "Bearer " + token}
-        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers = headers, verify = False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
+        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers = headers, verify = False).json().get('resources') if x.get('entity').get('name') == self.__project.name]
         self.__connection.client.set.default_project(project_list[0])
 
         def get_asset_details(self):
@@ -86,7 +86,7 @@ class Pipeline:
     def set_data(self, dataset):
 
         self._dataset = dataset
-        uid  = list(map(lambda x: x.get('asset_id') if x.get('name')==self._dataset.name else None, self.__connection.client.get_asset_details()))
+        uid = list(map(lambda x: x.get('asset_id') if x.get('name') == self._dataset.name else None, self.__connection.client.get_asset_details()))
         self._dataset.data = self.__connection.client.data_assets.download(uid[0], self._dataset.name)
 
         self._dataset.data = pd.read_csv(self._dataset.name)
@@ -94,7 +94,7 @@ class Pipeline:
 
     def set__namespace(self, namespace):
         self.__namespace = namespace
-        spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None, self.__connection.client.spaces.get_details().get('resources'))
+        spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name') == self.__namespace.name else None, self.__connection.client.spaces.get_details().get('resources'))
         spaces = [x for x in spaces if x is not None]
         for space in spaces:
             self.__connection.client.spaces.delete(space)
@@ -112,7 +112,7 @@ class Pipeline:
 
         deletedModels = list(map(lambda x: self.__connection.client.repository.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, stored_models))
 
-        self.model_artifact = self.__connection.client.repository.store_model(self.__stored_model.model._model_object.model, meta_props={
+        self.model_artifact = self.__connection.client.repository.store_model(self.__stored_model.model._model_object.model, meta_props = {
             self.__connection.client.repository.ModelMetaNames.NAME: self.__stored_model.model._model_object.name,
             self.__connection.client.repository.ModelMetaNames.TYPE: self.__stored_model.model._type.definition,
             self.__connection.client.repository.ModelMetaNames.SOFTWARE_SPEC_UID: sofware_spec_uid})
@@ -126,7 +126,7 @@ class Pipeline:
 
         deletedDeployments = list(map(lambda x: self.__connection.client.deployments.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, deployed_models))
 
-        self.deployment = self.__connection.client.deployments.create(artifact_uid=self.model_uid, meta_props={
+        self.deployment = self.__connection.client.deployments.create(artifact_uid = self.model_uid, meta_props = {
             self.__connection.client.deployments.ConfigurationMetaNames.NAME: self.__stored_model.model._model_object.name,
             self.__connection.client.deployments.ConfigurationMetaNames.ONLINE: {}})
         self.deployment_uid = self.deployment.get('metadata').get('guid')
@@ -169,15 +169,15 @@ class Pipeline:
         self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}) # TODO: self._credentials
 
     def add_openscale_model(self):
-        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials={"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = {"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
         # TODO: remove this binding
-        subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid=self.model_artifact.get("metadata").get("id"), prediction_column='prediction'))
+        subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid = self.model_artifact.get("metadata").get("id"), prediction_column = 'prediction'))
         subscription.payload_logging.enable()
         subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
 
         dataset_name = "test_data.csv"
         with open(dataset_name) as csvfile:
-            rows = [row for row in csv.reader(csvfile, delimiter=',')]
+            rows = [row for row in csv.reader(csvfile, delimiter = ',')]
             features = rows[0]
             records = rows[1:min(len(rows),1001)]
             X_columns = features[:-1]
