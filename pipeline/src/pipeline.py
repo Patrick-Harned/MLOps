@@ -199,7 +199,7 @@ class Pipeline:
 
 class PipelineBuilder:
     def get_connection(self): pass
-    def get__namespaces(self): pass
+    def get_namespaces(self): pass
     def get_stored_model(self): pass
     def get_deployment(self): pass
     def get_data(selfs): pass
@@ -213,7 +213,7 @@ class ModelPipelineBuilder(PipelineBuilder):
         connection = Connection()
         return connection
 
-    def get__namespace(self):
+    def get_namespace(self):
         namespace = Namespace()
         return namespace
 
@@ -261,7 +261,7 @@ class PipelineDirector:
 
         pipeline.set_connection(connection)
 
-        namespace = self.__builder.get__namespace()
+        namespace = self.__builder.get_namespace()
 
         pipeline._init_cleanup(namespace)
 
