@@ -62,7 +62,7 @@ class Pipeline:
 
         headers = {"content-type": "application/json", "Accept": "application/json",
                        "Authorization": "Bearer " + token}
-        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
+        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers = headers, verify = False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
         self.__connection.client.set.default_project(project_list[0])
 
         def get_asset_details(self):
@@ -231,7 +231,7 @@ class ModelPipelineBuilder(PipelineBuilder):
         director.setBuilder(modelbuilder)
         model = director.getModel()
         model.specification()
-        storedModel= StoredModel()
+        storedModel = StoredModel()
         storedModel.model = model
         return storedModel
 
@@ -266,7 +266,7 @@ class PipelineDirector:
         pipeline._init_cleanup(namespace)
 
         # then the namespaces
-        project = self.__builder.get_project(project_name=project_name)
+        project = self.__builder.get_project(project_name = project_name)
         pipeline.set_project(project)
         ## add the training data
         dataset = self.__builder.get_dataset(dataset_name)
