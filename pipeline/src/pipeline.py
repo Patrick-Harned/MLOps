@@ -1,27 +1,30 @@
 import os
-from ibm_watson_machine_learning import APIClient
-from ibm_ai_openscale import APIClient4ICP
-from ibm_ai_openscale.engines import WatsonMachineLearningAsset
-from ibm_ai_openscale.engines import WatsonMachineLearningInstance4ICP
-from ibm_ai_openscale.supporting_classes import PayloadRecord
-from pipeline.src.core_models import ScikitLearnModelBuilder, ModelDirector
-from ibm_ai_openscale.supporting_classes.enums import ProblemType
-from ibm_ai_openscale.supporting_classes.enums import FeedbackFormat
 import csv
 import time
+import requests
+import types
+import sys
+from io import StringIO
+import pandas as pd
+from ibm_watson_machine_learning import APIClient
+from ibm_ai_openscale import APIClient4ICP
+from ibm_ai_openscale.engines import WatsonMachineLearningAsset, WatsonMachineLearningInstance4ICP
+from ibm_ai_openscale.supporting_classes import PayloadRecord
+from pipeline.src.core_models import ScikitLearnModelBuilder, ModelDirector
+from ibm_ai_openscale.supporting_classes.enums import ProblemType, FeedbackFormat
 # Pipeline Parts
 
 class Connection:
     client = None
 
 class StoredModel:
-    model= None
+    model = None
 
 class Deployment:
     deployedModel = None
 
 class Namespace:
-    name = "prod-space"
+    name = "jenkinstestspace"
 
 class Project:
     def __init__(self, project_name):
@@ -53,7 +56,6 @@ class Pipeline:
 
     def set_project(self, project):
         self.__project = project
-        import requests, json
 
         token = self.__connection.client.wml_token
 
@@ -64,8 +66,6 @@ class Pipeline:
         self.__connection.client.set.default_project(project_list[0])
 
         def get_asset_details(self):
-            from io import StringIO
-            import sys
             temp_out = StringIO()
             sys.stdout = temp_out
             self.data_assets.list()
@@ -80,7 +80,6 @@ class Pipeline:
                 new_list.append(dict(zip(keys, values[i])))
             return new_list
 
-        import types
         funcType = types.MethodType
         self.__connection.client.get_asset_details = funcType(get_asset_details, self.__connection.client)
 
@@ -89,14 +88,13 @@ class Pipeline:
         self._dataset = dataset
         uid  = list(map(lambda x: x.get('asset_id') if x.get('name')==self._dataset.name else None, self.__connection.client.get_asset_details()))
         self._dataset.data = self.__connection.client.data_assets.download(uid[0], self._dataset.name)
-        import pandas as pd
+
         self._dataset.data = pd.read_csv(self._dataset.name)
         print(self._dataset.data.head())
 
     def set__namespace(self, namespace):
         self.__namespace = namespace
-        spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None,
-                     self.__connection.client.spaces.get_details().get('resources'))
+        spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None, self.__connection.client.spaces.get_details().get('resources'))
         spaces = [x for x in spaces if x is not None]
         for space in spaces:
             self.__connection.client.spaces.delete(space)
@@ -168,13 +166,14 @@ class Pipeline:
         print(self.__connection.client.get_asset_details())
 
     def set_openscale(self):
-        self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})
+        self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}) # TODO: self._credentials
 
     def add_openscale_model(self):
-        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials={"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}))
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials={"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
+        # TODO: remove this binding
         subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid=self.model_artifact.get("metadata").get("id"), prediction_column='prediction'))
         subscription.payload_logging.enable()
-        subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION)
+        subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
 
         dataset_name = "test_data.csv"
         with open(dataset_name) as csvfile:
@@ -183,28 +182,19 @@ class Pipeline:
             records = rows[1:min(len(rows),1001)]
             X_columns = features[:-1]
             X_Train = [row[:-1] for row in records]
-        payload = {self.__connection.client.deployments.ScoringMetaNames.INPUT_DATA: [{'fields': X_columns, 'values': X_Train}]}
+        payload = {self.__connection.client.deployments.ScoringMetaNames.INPUT_DATA: [{'fields': X_columns, 'values': [X_Train[0]]}]}
         scoring_response = self.__connection.client.deployments.score(self.deployment_uid, payload)
-
-        #print(subscription.feedback_logging.print_table_schema())
+        time.sleep(10)
         payload_records = [PayloadRecord(request = {'fields': X_columns, 'values': X_Train}, response = scoring_response)]
         subscription.payload_logging.store(records = payload_records)
-        time.sleep(30)
-        #print(subscription.performance_monitoring.show_table())
-        #print(subscription.payload_logging.show_table())
-        #subscription.feedback_logging.store(open('test_data.csv', mode="rb").read(), feedback_format=FeedbackFormat.CSV, data_header=False)
+        time.sleep(10)
         subscription.quality_monitoring.enable(threshold = 0.9, min_records = 10)
-        time.sleep(30)
-        subscription.feedback_logging.store(feedback_data = records)#, fields = features)
+        time.sleep(10)
+        subscription.feedback_logging.store(feedback_data = records)
+        time.sleep(40)
 
-        #print(subscription.feedback_logging.print_table_schema())
-
-        #print(subscription.get_details())
-        #subscription.feedback_logging.store(values)
-        time.sleep(30)
-        run_details = subscription.quality_monitoring.run(background_mode=False)
+        subscription.quality_monitoring.run(background_mode = False)
         print(subscription.quality_monitoring.show_table())
-
 
 
 class PipelineBuilder:
