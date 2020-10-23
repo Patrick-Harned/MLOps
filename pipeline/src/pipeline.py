@@ -90,7 +90,7 @@ class Pipeline:
         self._dataset.data = pd.read_csv(self._dataset.name)
         print(self._dataset.data.head())
 
-    def set__namespace(self, namespace):
+    def set_namespace(self, namespace):
         self.__namespace = namespace
         spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name') == self.__namespace.name else None, self.__connection.client.spaces.get_details().get('resources'))
         spaces = [x for x in spaces if x is not None]
@@ -144,8 +144,7 @@ class Pipeline:
             self.__connection.client.spaces.get_details().get('resources'))))
         for space in spaces:
             self.__connection.client.set.default_space(space)
-            print(
-                "Found existing default space with name " + self.__namespace.name + ". cleaning up resource from last run")
+            print("Found existing default space with name " + self.__namespace.name + ". cleaning up resource from last run")
             for deployment in self.__connection.client.deployments.get_details().get('resources'):
                 uid = deployment.get('metadata').get('guid')
                 self.__connection.client.deployments.delete(uid)
@@ -164,13 +163,13 @@ class Pipeline:
         print(self.__connection.client.get_asset_details())
 
     def set_openscale(self):
-        self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}) # TODO: self._credentials
-        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = {"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
+        openscale_credentials = {"url": self._credentials.get("url"), "username": self._credentials.get("username"), "password": self._credentials.get("password")}
+        self.ai_client = APIClient4ICP(openscale_credentials)
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = openscale_credentials)) # TODO: self.wml_credentials
         self.subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid = self.model_artifact.get("metadata").get("id"), prediction_column = 'prediction'))
         self.subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
 
     def add_openscale_model(self):
-        # TODO: remove this binding
         self.subscription.payload_logging.enable()
 
         dataset_name = "test_data.csv"
@@ -203,7 +202,7 @@ class PipelineBuilder:
     def get_namespaces(self): pass
     def get_stored_model(self): pass
     def get_deployment(self): pass
-    def get_data(selfs): pass
+    def get_data(self): pass
 
 class ModelPipelineBuilder(PipelineBuilder):
 
@@ -274,7 +273,7 @@ class PipelineDirector:
         pipeline.set_data(dataset)
 
 
-        pipeline.set__namespace(namespace)
+        pipeline.set_namespace(namespace)
 
         # then the project
 
