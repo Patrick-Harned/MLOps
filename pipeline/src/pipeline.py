@@ -177,7 +177,7 @@ class Pipeline:
 
         dataset_name = "test_data.csv"
         with open(dataset_name) as csvfile:
-            rows = [row for row in csv.reader(csvfile, delimiter = ',')]
+            rows = list(csv.reader(csvfile, delimiter = ','))
             features = rows[0]
             records = rows[1:min(len(rows),1001)]
             X_columns = features[:-1]
@@ -191,10 +191,10 @@ class Pipeline:
         self.subscription.quality_monitoring.enable(threshold = 0.9, min_records = 10)
         time.sleep(10)
         self.subscription.feedback_logging.store(feedback_data = records)
-        time.sleep(40)
+        time.sleep(45)
 
         self.subscription.quality_monitoring.run(background_mode = False)
-        print(self.subscription.quality_monitoring.show_table())
+        self.subscription.quality_monitoring.show_table()
         subscriptions_uids = self.ai_client.data_mart.subscriptions.get_uids()
         for uid in subscriptions_uids:
             self.ai_client.data_mart.subscriptions.delete(uid)
