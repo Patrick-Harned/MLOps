@@ -1,10 +1,10 @@
 import os
 import csv
 import time
-import requests
 import types
 import sys
 from io import StringIO
+import requests
 import pandas as pd
 from ibm_watson_machine_learning import APIClient
 from ibm_ai_openscale import APIClient4ICP
@@ -162,18 +162,18 @@ class Pipeline:
         print("type: %s" % self.__deployed_model.deployedModel)
         print("type: %s" % self.__stored_model.model._software_spec.definition)
         print("namespacename: %s" % self.__namespace.name)
-        print("projectt %s  " % self.__project.name)
+        print("projectt %s" % self.__project.name)
         print(self.__connection.client.get_asset_details())
 
     def set_openscale(self):
         self.ai_client = APIClient4ICP({"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"}) # TODO: self._credentials
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = {"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
+        self.subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid = self.model_artifact.get("metadata").get("id"), prediction_column = 'prediction'))
+        self.subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
 
     def add_openscale_model(self):
-        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = {"url": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local", "username": "admin", "password": "password"})) # TODO: self.wml_credentials
         # TODO: remove this binding
-        subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid = self.model_artifact.get("metadata").get("id"), prediction_column = 'prediction'))
-        subscription.payload_logging.enable()
-        subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
+        self.subscription.payload_logging.enable()
 
         dataset_name = "test_data.csv"
         with open(dataset_name) as csvfile:
@@ -186,15 +186,18 @@ class Pipeline:
         scoring_response = self.__connection.client.deployments.score(self.deployment_uid, payload)
         time.sleep(10)
         payload_records = [PayloadRecord(request = {'fields': X_columns, 'values': X_Train}, response = scoring_response)]
-        subscription.payload_logging.store(records = payload_records)
+        self.subscription.payload_logging.store(records = payload_records)
         time.sleep(10)
-        subscription.quality_monitoring.enable(threshold = 0.9, min_records = 10)
+        self.subscription.quality_monitoring.enable(threshold = 0.9, min_records = 10)
         time.sleep(10)
-        subscription.feedback_logging.store(feedback_data = records)
+        self.subscription.feedback_logging.store(feedback_data = records)
         time.sleep(40)
 
-        subscription.quality_monitoring.run(background_mode = False)
-        print(subscription.quality_monitoring.show_table())
+        self.subscription.quality_monitoring.run(background_mode = False)
+        print(self.subscription.quality_monitoring.show_table())
+        subscriptions_uids = self.ai_client.data_mart.subscriptions.get_uids()
+        for uid in subscriptions_uids:
+            self.ai_client.data_mart.subscriptions.delete(uid)
 
 
 class PipelineBuilder:
