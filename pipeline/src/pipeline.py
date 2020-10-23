@@ -47,8 +47,7 @@ class Pipeline:
                     "CP4D_URL": "https://zen-cpd-zen.apps.pwh.ocp.csplab.local"}
         values = ['WML_USERNAME', "WML_PASSWORD", "CP4D_URL"]
         self._credentials = dict(zip(['username', 'password', 'url'],
-                               map(lambda x: defaults.get(x) if os.environ.get(x) is None else os.environ.get(x),
-                                   values)))
+                                     map(lambda x: defaults.get(x) if os.environ.get(x) is None else os.environ.get(x), values)))
         self._credentials['instance_id'] = 'wml_local'
         self._credentials['version'] = '3.0.1'
         connection.client = APIClient(self._credentials)
@@ -59,9 +58,8 @@ class Pipeline:
 
         token = self.__connection.client.wml_token
 
-
         headers = {"content-type": "application/json", "Accept": "application/json",
-                       "Authorization": "Bearer " + token}
+                   "Authorization": "Bearer " + token}
         project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers = headers, verify = False).json().get('resources') if x.get('entity').get('name') == self.__project.name]
         self.__connection.client.set.default_project(project_list[0])
 
@@ -110,7 +108,7 @@ class Pipeline:
 
         stored_models = self.__connection.client.repository.get_details().get('models').get('resources')
 
-        deletedModels = list(map(lambda x: self.__connection.client.repository.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, stored_models))
+        deleted_models = list(map(lambda x: self.__connection.client.repository.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, stored_models))
 
         self.model_artifact = self.__connection.client.repository.store_model(self.__stored_model.model._model_object.model, meta_props = {
             self.__connection.client.repository.ModelMetaNames.NAME: self.__stored_model.model._model_object.name,
@@ -124,7 +122,7 @@ class Pipeline:
         self.model_uid = self.model_artifact.get('metadata').get('guid')
         deployed_models = self.__connection.client.deployments.get_details().get('resources')
 
-        deletedDeployments = list(map(lambda x: self.__connection.client.deployments.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, deployed_models))
+        deleted_deployments = list(map(lambda x: self.__connection.client.deployments.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, deployed_models))
 
         self.deployment = self.__connection.client.deployments.create(artifact_uid = self.model_uid, meta_props = {
             self.__connection.client.deployments.ConfigurationMetaNames.NAME: self.__stored_model.model._model_object.name,
