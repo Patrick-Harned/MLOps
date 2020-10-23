@@ -165,7 +165,7 @@ class Pipeline:
     def set_openscale(self):
         openscale_credentials = {"url": self._credentials.get("url"), "username": self._credentials.get("username"), "password": self._credentials.get("password")}
         self.ai_client = APIClient4ICP(openscale_credentials)
-        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = openscale_credentials)) # TODO: self.wml_credentials
+        self.ai_client.data_mart.bindings.add('WML instance', WatsonMachineLearningInstance4ICP(wml_credentials = openscale_credentials))
         self.subscription = self.ai_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(source_uid = self.model_artifact.get("metadata").get("id"), prediction_column = 'prediction'))
         self.subscription.update(problem_type = ProblemType.MULTICLASS_CLASSIFICATION) # TODO: abstract in some way
 
@@ -231,9 +231,9 @@ class ModelPipelineBuilder(PipelineBuilder):
         director.setBuilder(modelbuilder)
         model = director.getModel()
         model.specification()
-        storedModel = StoredModel()
-        storedModel.model = model
-        return storedModel
+        stored_model = StoredModel()
+        stored_model.model = model
+        return stored_model
 
     def get_dataset(self, dataset_name):
         data = DataSet(dataset_name)
