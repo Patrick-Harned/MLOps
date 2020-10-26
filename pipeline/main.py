@@ -11,14 +11,8 @@ if path not in sys.path:
 
 from pipeline import *
 
-def main():
-    import sys
-    modeltype = sys.argv[1]
-    project_name = sys.argv[2]
-    dataset_name = sys.argv[3]
+def main(modeltype, project_name, dataset_name):
     print(modeltype)
-
-
     pipelinebuilder = ModelPipelineBuilder()
     director = PipelineDirector()
     director.setBuilder(pipelinebuilder)
@@ -31,7 +25,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    modeltype = sys.argv[1]
+    project_name = sys.argv[2]
+    dataset_name = sys.argv[3]
+    #modeltype="scikit-learn_0.22-py3.6"; project_name="mlops"; dataset_name="val_breast_cancer.csv"
+    main(modeltype, project_name, dataset_name)
 
 
 
