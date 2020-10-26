@@ -1,5 +1,4 @@
 import os
-from ibm_watson_machine_learning import APIClient
 
 class ModelDirector:
     '''
@@ -74,10 +73,10 @@ class ScikitLearnModelBuilder(Builder):
         import sklearn
 
     def getModel(self):
-        # requires model object to be return by function located in pipeline/model/model.py
-        from pipeline.model.model import model as object
+        # requires model python object to be return by no argument function located in pipeline/model/model.py
+        from pipeline.model.model import pipeline as model
         modelobject=ModelObject()
-        modelobject.model= object()
+        modelobject.model = model
         return modelobject
 
     def getSoftwareSpec(self):
@@ -92,7 +91,6 @@ class ScikitLearnModelBuilder(Builder):
 
 
 
-
 # Model parts
 class SoftWareSpec:
     definition = None
@@ -103,4 +101,5 @@ class Type:
 
 class ModelObject:
     model = None
-    name = "jenkinstestmodel"
+    #name = "jenkinstestmodel"
+    name = 'noah-test-model'
