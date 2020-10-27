@@ -1,0 +1,15 @@
+CP4D_Credentials:
+  url:
+  username:
+  password:
+Project:
+Namespace:
+Model:
+  name:
+  type:
+  cleanup: True
+OpenScale:
+  monitors:
+    quality:
+    fairness:
+  cleanup: True

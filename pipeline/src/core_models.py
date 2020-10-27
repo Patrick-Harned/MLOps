@@ -101,5 +101,5 @@ class Type:
 
 class ModelObject:
     model = None
-    #name = "jenkinstestmodel"
-    name = 'noah-test-model'
+    name = "jenkinstestmodel"
+    #name = 'noah-test-model'
