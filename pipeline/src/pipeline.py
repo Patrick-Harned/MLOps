@@ -14,16 +14,19 @@
 
 import os
 import time
+import types
+import sys
+from io import StringIO
+import requests
 
+import pandas as pd
 from ibm_watson_machine_learning import APIClient
 from ibm_ai_openscale import APIClient4ICP
 from ibm_ai_openscale.engines import WatsonMachineLearningAsset
-from ibm_ai_openscale.supporting_classes.enums import *
+from ibm_ai_openscale.supporting_classes.enums import InputDataType
 from ibm_ai_openscale.supporting_classes import PayloadRecord
-import pandas as pd
 
 from pipeline.src.core_models import ScikitLearnModelBuilder, ModelDirector
-
 
 # Pipeline Parts
 
@@ -32,7 +35,7 @@ class Connection:
     wos_client = None
 
 class StoredModel:
-    model= None
+    model = None
 
 class Subscription:
     subscription = None
@@ -41,8 +44,7 @@ class Deployment:
     deployedModel = None
 
 class Namespace:
-    #name = "prod-space"
-    name = "noah-test-space"
+    name = "jenkinstestspace"
 
 class Project:
     def __init__(self, project_name):
@@ -85,10 +87,8 @@ class Pipeline:
         to extract asset details
         '''
         self.__project = project
-        import requests, json
 
         token = self.__connection.wml_client.wml_token
-
 
         headers = {"content-type": "application/json", "Accept": "application/json",
                        "Authorization": "Bearer " + token}
@@ -96,8 +96,6 @@ class Pipeline:
         self.__connection.wml_client.set.default_project(project_list[0])
 
         def get_asset_details(self):
-            from io import StringIO
-            import sys
             temp_out = StringIO()
             true_stdout = sys.stdout
             sys.stdout = temp_out
@@ -114,7 +112,6 @@ class Pipeline:
                 new_list.append(dict(zip(keys, values[i])))
             return new_list
 
-        import types
         funcType = types.MethodType
         self.__connection.wml_client.get_asset_details = funcType(get_asset_details, self.__connection.wml_client)
 
@@ -142,7 +139,7 @@ class Pipeline:
         self._dataset.CATEGORICAL_COLUMNS = CATEGORICAL_COLUMNS
         print(self._dataset.data.head())
 
-    def set__namespace(self, namespace):
+    def set_namespace(self, namespace):
         '''
         Delete existing deployment spaces with specified name and establish 
         new one with that name.
@@ -168,11 +165,11 @@ class Pipeline:
         self.__stored_model = stored_model
         sofware_spec_uid = self.__connection.wml_client.software_specifications.get_id_by_name(self.__stored_model.model._software_spec.definition)
 
-        stored_models = self.__connection.wml_client.repository.get_details().get('models').get('resources')
-
-        # nb: the model_object.name is hardcoded in the ModelObject class defined in model_builder.py/core_models.pu
-        deletedModels = list(map(lambda x: self.__connection.wml_client.repository.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, stored_models))
-
+        # for debugging
+        #stored_models = self.__connection.wml_client.repository.get_details().get('models').get('resources')
+        # nb: the model_object.name is hardcoded in the ModelObject class defined in model_builder.py/core_models.py
+        #deleted_models = list(map(lambda x: self.__connection.wml_client.repository.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, stored_models))
+        
         self.model_artifact = self.__connection.wml_client.repository.store_model(self.__stored_model.model._model_object.model, meta_props={
             self.__connection.wml_client.repository.ModelMetaNames.NAME: self.__stored_model.model._model_object.name,
             self.__connection.wml_client.repository.ModelMetaNames.TYPE: self.__stored_model.model._type.definition,
@@ -183,11 +180,12 @@ class Pipeline:
     def set_deployed_model(self, deployed_model):
         self.__deployed_model = deployed_model
         self.model_uid = self.model_artifact.get('metadata').get('guid')
-        deployed_models = self.__connection.wml_client.deployments.get_details().get('resources')
+        
+        # for debugging
+        #deployed_models = self.__connection.wml_client.deployments.get_details().get('resources')
+        #deleted_deployments = list(map(lambda x: self.__connection.wml_client.deployments.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, deployed_models))
 
-        deletedDeployments = list(map(lambda x: self.__connection.wml_client.deployments.delete(x.get('metadata').get('uid')) if self.__stored_model.model._model_object.name == x.get('metadata').get('name') else None, deployed_models))
-
-        self.deployment = self.__connection.wml_client.deployments.create(artifact_uid=self.model_uid, meta_props={
+        self.deployment = self.__connection.wml_client.deployments.create(artifact_uid = self.model_uid, meta_props = {
             self.__connection.wml_client.deployments.ConfigurationMetaNames.NAME: self.__stored_model.model._model_object.name,
             self.__connection.wml_client.deployments.ConfigurationMetaNames.ONLINE: {}})
         self.deployment_uid = self.deployment.get('metadata').get('guid')
@@ -197,7 +195,13 @@ class Pipeline:
     def set_subscription(self, subscription):
         '''Create subscription to the stored model and log a request/response payload'''
         
+        # set binding to external WML instance cluster
+        # self.wos_client.data_mart.bindings.add('WML instance', 
+        #     WatsonMachineLearningInstance4ICP(wml_credentials = openscale_credentials)
+        #     )
+
         # create subscription to stored model
+        print('Creating subscription to WML model...')
         self.subscription = self.__connection.wos_client.data_mart.subscriptions.add(WatsonMachineLearningAsset(
             self.model_uid,
             problem_type=self._dataset.PROBLEM_TYPE,
@@ -212,6 +216,7 @@ class Pipeline:
         # log payload
         request_payload, response_payload = self.score_deployed_model()
         record = PayloadRecord(request=request_payload, response=response_payload)
+        #self.subscription.payload_logging.enable() # apparently not necessary
         self.subscription.payload_logging.store(records=[record])
         # give WOS time to ingest Payload data before attempting any monitoring.
         wait = 60
@@ -223,6 +228,7 @@ class Pipeline:
 
     def score_deployed_model(self):
         #request_data = {self.__connection.wml_client.deployments.ScoringMetaNames.INPUT_DATA: [{"fields":self._dataset.data.columns.tolist(), "values":self._dataset.data.values.tolist()}]}
+        print('Scoring deployed model...')
         request_payload = {'input_data': 
                             [{'fields': self._dataset.FEATURE_COLUMNS,
                                 'values': self._dataset.data[self._dataset.FEATURE_COLUMNS].values.tolist()
@@ -231,6 +237,7 @@ class Pipeline:
         response_payload = self.__connection.wml_client.deployments.score(self.deployment_uid, request_payload)
         if response_payload: print('Deployed model succesfully scored')
         return request_payload, response_payload
+
 
 
     def run_quality_monitor(self):
@@ -308,7 +315,7 @@ class Pipeline:
 
 class PipelineBuilder:
     def get_connection(self): pass
-    def get__namespaces(self): pass
+    def get_namespace(self): pass
     def get_stored_model(self): pass
     def get_deployment(self): pass
     def get_subscription(self): pass
@@ -323,7 +330,7 @@ class ModelPipelineBuilder(PipelineBuilder):
         connection = Connection()
         return connection
 
-    def get__namespace(self):
+    def get_namespace(self):
         namespace = Namespace()
         return namespace
 
@@ -341,10 +348,10 @@ class ModelPipelineBuilder(PipelineBuilder):
         model_director.setBuilder(modelbuilder)
         model = model_director.getModel()
         model.specification()
-        storedModel= StoredModel()
-        storedModel.model = model
-        return storedModel
-        
+        stored_model = StoredModel()
+        stored_model.model = model
+        return stored_model
+
     def get_dataset(self, dataset_name):
         data = DataSet(dataset_name)
         return data
@@ -377,20 +384,20 @@ class PipelineDirector:
         connection = self.__builder.get_connection()
         pipeline.set_connection(connection)
 
-        namespace = self.__builder.get__namespace()
+        namespace = self.__builder.get_namespace()
         stored_model = self.__builder.get_stored_model(model_builder_type)
 
         pipeline._init_cleanup(namespace, stored_model.model._model_object.name)
 
         # then the namespaces
-        project = self.__builder.get_project(project_name=project_name)
+        project = self.__builder.get_project(project_name = project_name)
         pipeline.set_project(project)
         
         # add the training data
         dataset = self.__builder.get_dataset(dataset_name)
         pipeline.set_data(dataset)
 
-        pipeline.set__namespace(namespace)
+        pipeline.set_namespace(namespace)
 
         pipeline.set_stored_model(stored_model)
 
