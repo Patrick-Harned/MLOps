@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-## Specificatins
+## Specifications
 
 - Data Scientist should be able to version control their model with commits triggering creation/updating of CP4D Assets
 - Integration with WML and Openscale  
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = FALSE)
 - Leverage data connections from Cloud Pak for Data
 
 
-## Questions regarding client-sde implementation
+## Questions regarding client-side implementation
 
  * Where does the client store data used to validate the model be stored? Github? A database? COS?
  * Will the data used to validate change regularly? Who would be responsible for changing it?
