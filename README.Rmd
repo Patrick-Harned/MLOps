@@ -51,7 +51,7 @@ digraph boxes_and_circles {
   style=filled;
 		color=lightgrey;
 		node [style=filled,color=white, shape=doublecircle]
-		4[label='Trigger Container ', shape = doublecircle]
+		4[label='Bootstrap Container ', shape = doublecircle]
 		label = 'OCP Platform';
 		4->5 [label='Deploys Model']
 		4->6 [label='Susbscribes Model']

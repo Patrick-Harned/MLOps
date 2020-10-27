@@ -196,6 +196,27 @@ class ListSubscriptionsAction(argparse._StoreAction, ConfigLoader):
         aios_client.data_mart.subscriptions.list()
 
 
+
+class CreateSubscriptionAction(argparse._StoreAction, ConfigLoader):
+
+    def __init__(self, option_strings, dest, **kwargs):
+        super(self.__class__, self).__init__(option_strings, dest)
+        self.help = "path to model stored as a tar.gz file"
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        super(self.__class__, self).__call__(parser, namespace, values, option_string)
+        clients = super(self.__class__, self).config(namespace).clients
+        aios_client = dict(clients).get("aios_client")
+        from ibm_ai_openscale.engines import WatsonMachineLearningAsset
+
+        ##space_details = super(self.__class__, self).set_default_space(namespace)
+
+
+
+        aios_client.data_mart.subscriptions.list()
+
+
+
 class MainParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n' % message)
@@ -244,6 +265,7 @@ class AIOSSubParser:
         self.subparsers = subparsers
         aios_parser = subparsers.add_parser("aios", help="subscribe and track model performance")
         aios_parser.add_argument("--list-subscriptions", type=str, help="list available subscription", action=ListSubscriptionsAction)
+        aios_parser.add_argument("--create-subscription", type=str, help="deployment ID for WML model", action=CreateSubscriptionAction)
 
 
 
