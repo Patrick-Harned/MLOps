@@ -33,7 +33,8 @@ spec:
         stage('Main') {
             steps {
                 sh 'pip install --no-cache-dir -r requirements.txt'
-                sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv'
+                // sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv'
+                sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops val_breast_cancer.csv'
             }
         }
 

@@ -47,7 +47,7 @@ dependencies:
   - pytz=2020.1=py_0
   - readline=8.0=h1de35cc_0
   - requests=2.24.0=py_0
-  - scikit-learn=0.23.2=py38h959d312_0
+  - scikit-learn=0.22.1=py38h27c97d8_0
   - scipy=1.5.0=py38hbab996c_0
   - setuptools=49.6.0=py38_0
   - six=1.15.0=py_0
