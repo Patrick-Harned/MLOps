@@ -12,12 +12,10 @@ if path not in sys.path:
 from pipeline import *
 
 def main(modeltype, project_name, dataset_name):
-    print(modeltype)
     pipelinebuilder = ModelPipelineBuilder()
     director = PipelineDirector()
     director.setBuilder(pipelinebuilder)
     pipeline = director.getPipeline(modeltype, project_name, dataset_name)
-
     pipeline.specification()
 
 

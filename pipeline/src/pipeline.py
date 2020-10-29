@@ -28,7 +28,23 @@ from ibm_ai_openscale.supporting_classes import PayloadRecord
 
 from pipeline.src.core_models import ScikitLearnModelBuilder, ModelDirector
 
-# Pipeline Parts
+
+
+
+def keys_exist(_dict, *keys):
+    '''
+    Check if path of *keys exist in nested _dict.
+    based on https://stackoverflow.com/questions/43491287/elegant-way-to-check-if-a-nested-key-exists-in-a-dict
+    '''
+    for key in keys:
+        try:
+            _dict = _dict[key]
+        except (TypeError, KeyError):
+            return False
+    return _dict
+
+
+# Pipeline Attributes
 
 class Connection:
     wml_client = None
@@ -88,37 +104,39 @@ class Pipeline:
         '''
         self.__project = project
 
+        # get list (len 1) of CP4D projects matching specified name
         token = self.__connection.wml_client.wml_token
-
         headers = {"content-type": "application/json", "Accept": "application/json",
                        "Authorization": "Bearer " + token}
-        project_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
-        self.__connection.wml_client.set.default_project(project_list[0])
+        project_uid_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources') if x.get('entity').get('name')==self.__project.name]
+        # set project
+        # ISSUE: setting default CP$D project seems to unset the default deployment space!
+        self.__connection.wml_client.set.default_project(project_uid_list[0])
 
         def get_asset_details(self):
-            temp_out = StringIO()
+            temp_stdout = StringIO()
             true_stdout = sys.stdout
-            sys.stdout = temp_out
+            sys.stdout = temp_stdout
             self.data_assets.list()
             #sys.stdout = sys.__stdout__
             sys.stdout = true_stdout
-            tempout2 = temp_out.getvalue().split('\n')
-            keys = [x.split(' ') for x in tempout2][1]
+            lines = temp_stdout.getvalue().split('\n')
+            keys = [x.split(' ') for x in lines][1]
             keys = [x.lower() for x in keys if len(x) != 0]
-            end = len(tempout2) - 2
-            values = [[x for x in x.split(' ') if len(x) != 0] for x in tempout2 if len(x) != 0]
+            end = len(lines) - 2
+            values = [[x for x in x.split(' ') if len(x) != 0] for x in lines if len(x) != 0]
             new_list = []
             for i in range(2, end):
                 new_list.append(dict(zip(keys, values[i])))
             return new_list
 
-        funcType = types.MethodType
-        self.__connection.wml_client.get_asset_details = funcType(get_asset_details, self.__connection.wml_client)
+        self.__connection.wml_client.get_asset_details = types.MethodType(get_asset_details, self.__connection.wml_client)
 
     def set_data(self, dataset):
         '''
-        Downloads data set stored in CP4D project data assets. The deployed 
-        model will be used to make predictions on the downloaded dataset. 
+        Downloads data set stored in CP4D project data assets and loads into 
+        memeory. The deployed model will be used to make predictions on the 
+        downloaded dataset. 
         '''
 
         self._dataset = dataset
@@ -141,24 +159,19 @@ class Pipeline:
 
     def set_namespace(self, namespace):
         '''
-        Delete existing deployment spaces with specified name and establish 
-        new one with that name.
+        Establish deployment space with specified name.
         '''
         self.__namespace = namespace
-        # list any existing deployment spaces with the desired name
-        spaces = map(lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name')==self.__namespace.name else None,
-                     self.__connection.wml_client.spaces.get_details().get('resources'))
-        spaces = [x for x in spaces if x is not None]
-        # delete existing spaces
-        for space in spaces:
-            self.__connection.wml_client.spaces.delete(space)
+
         # create new deployment space
         default_space = self.__connection.wml_client.spaces.store(
-            {self.__connection.wml_client.spaces.ConfigurationMetaNames.NAME: self.__namespace.name})
+            {self.__connection.wml_client.spaces.ConfigurationMetaNames.NAME: self.__namespace.name}
+            )
         uid = default_space.get('metadata').get('guid')
         # set new space as default space for future actions
+        # ISSUE: setting default deployment space seems to unset the default CP4D project!
         self.__connection.wml_client.set.default_space(uid)
-        print("Creating namespace " + self.__namespace.name)
+        print("Deployment space created: " + self.__namespace.name)
 
     def set_stored_model(self, stored_model):
         '''Store a python ML model in the WML instance's repository'''
@@ -175,9 +188,10 @@ class Pipeline:
             self.__connection.wml_client.repository.ModelMetaNames.TYPE: self.__stored_model.model._type.definition,
             self.__connection.wml_client.repository.ModelMetaNames.SOFTWARE_SPEC_UID: sofware_spec_uid})
 
-        print(self.model_artifact)
+        print('Stored model:', self.model_artifact)
 
     def set_deployed_model(self, deployed_model):
+        '''Deploy stored wml model'''
         self.__deployed_model = deployed_model
         self.model_uid = self.model_artifact.get('metadata').get('guid')
         
@@ -190,6 +204,19 @@ class Pipeline:
             self.__connection.wml_client.deployments.ConfigurationMetaNames.ONLINE: {}})
         self.deployment_uid = self.deployment.get('metadata').get('guid')
         print("Deployment succesful! at " + str(self.deployment))
+
+
+    def score_deployed_model(self):
+        #request_data = {self.__connection.wml_client.deployments.ScoringMetaNames.INPUT_DATA: [{"fields":self._dataset.data.columns.tolist(), "values":self._dataset.data.values.tolist()}]}
+        print('Scoring deployed model...')
+        request_payload = {'input_data': 
+                            [{'fields': self._dataset.FEATURE_COLUMNS,
+                                'values': self._dataset.data[self._dataset.FEATURE_COLUMNS].values.tolist()
+                                }]
+                            }
+        response_payload = self.__connection.wml_client.deployments.score(self.deployment_uid, request_payload)
+        if response_payload: print('Deployed model succesfully scored.')
+        return request_payload, response_payload
 
 
     def set_subscription(self, subscription):
@@ -222,22 +249,8 @@ class Pipeline:
         wait = 60
         print(f'Wait {wait} seconds for WOS database to update...')
         time.sleep(wait)
+        print('Payload Table:')
         self.subscription.payload_logging.show_table(limit=5)
-
-
-
-    def score_deployed_model(self):
-        #request_data = {self.__connection.wml_client.deployments.ScoringMetaNames.INPUT_DATA: [{"fields":self._dataset.data.columns.tolist(), "values":self._dataset.data.values.tolist()}]}
-        print('Scoring deployed model...')
-        request_payload = {'input_data': 
-                            [{'fields': self._dataset.FEATURE_COLUMNS,
-                                'values': self._dataset.data[self._dataset.FEATURE_COLUMNS].values.tolist()
-                                }]
-                            }
-        response_payload = self.__connection.wml_client.deployments.score(self.deployment_uid, request_payload)
-        if response_payload: print('Deployed model succesfully scored')
-        return request_payload, response_payload
-
 
 
     def run_quality_monitor(self):
@@ -256,7 +269,7 @@ class Pipeline:
         print('Model Qaulity Validation:')
         print(pd.Series(run_details['output']['metrics']))
         print(pd.DataFrame(run_details['output']['confusion_matrix']['metrics_per_label']).T)
-        self.subscription.quality_monitoring.disable()
+        
 
 
 
@@ -275,19 +288,24 @@ class Pipeline:
         # note: we are not checking if models were stored in specified namespace
         subscription_details = self.__connection.wos_client.data_mart.subscriptions.get_details()['subscriptions']
         for record in subscription_details:
-            if record['entity']['asset']['name'] == self.__model_name:
+            if keys_exist(record, 'entity', 'asset', 'name') == self.__model_name:
                 print(("Found existing subscription to model with name "
                     f"{self.__model_name}. Deleting..."))
                 subscription_uid = record['metadata']['guid']
+                # disable quality monitor from running hourly
+                # assume quality monitoring is automatically disabled if subscription is deleted
+                #self.__connection.wos_client.data_mart.subscriptions.get(subscription_uid).quality_monitoring.disable()
                 self.__connection.wos_client.data_mart.subscriptions.delete(subscription_uid)
 
 
-        # list deployment spaces with specified name
+        # list existing deployment spaces with specified name
+        # nb: wml_client.spaces is not mentioned in the CP4D client docs, 
+        # only in the IBM cloud client docs, yet it is used here. hmmm?
         spaces = list(filter(lambda x: x is not None, map(
             lambda x: x.get('metadata').get('guid') if x.get('metadata').get('name') == self.__namespace.name else None,
             self.__connection.wml_client.spaces.get_details().get('resources'))))
-        if len(spaces)==0: print(f'No deployment spaces with name {namespace} found')
-        # delete assests and deployments in each space
+        if len(spaces)==0: print(f'No deployment spaces with name {namespace.name} found')
+        # delete all assests and deployments in each space, and space itself
         for space in spaces:
             print("Found existing deployment space with name " + \
                 self.__namespace.name + ". Deleting deployments and assets from previous runs")
@@ -300,14 +318,16 @@ class Pipeline:
                 uid = model.get('metadata').get('guid')
                 self.__connection.wml_client.repository.delete(uid)
                 print('Deleting model ' + uid)
+            # delete deployment space
+            self.__connection.wml_client.spaces.delete(space)
         
 
+
     def specification(self):
-        print("wml_client: %s" % self.__connection.wml_client)
-        print("type: %s" % self.__deployed_model.deployedModel)
+        print("wml_client: %s" % self.__connection.wml_client.wml_credentials['url'])
         print("type: %s" % self.__stored_model.model._software_spec.definition)
-        print("namespacename: %s" % self.__namespace.name)
-        print("projectt %s  " % self.__project.name)
+        print("deployment Space: %s" % self.__namespace.name)
+        print("project name: %s" % self.__project.name)
         print(self.__connection.wml_client.get_asset_details())
 
 
@@ -341,7 +361,6 @@ class ModelPipelineBuilder(PipelineBuilder):
     def get_stored_model(self, model_builder_type):
         '''get a python ML model object to deploy'''
         modelbuilder = self.__choices.get(model_builder_type)()  # initializing the class
-        print(modelbuilder)
         model_director = ModelDirector()
 
         # Build Model
@@ -376,7 +395,9 @@ class PipelineDirector:
 
     #model_builder_type="scikit-learn_0.22-py3.6"; project_name="mlops"; dataset_name="val_breast_cancer.csv"
     def getPipeline(self, model_builder_type, project_name, dataset_name):
-        '''set up Deployment, predict on newdata, and teardown deployment'''
+        '''
+        Run CI Pipeline
+        '''
         pipeline = Pipeline()
 
 
@@ -386,7 +407,6 @@ class PipelineDirector:
 
         namespace = self.__builder.get_namespace()
         stored_model = self.__builder.get_stored_model(model_builder_type)
-
         pipeline._init_cleanup(namespace, stored_model.model._model_object.name)
 
         # then the namespaces
@@ -413,7 +433,7 @@ class PipelineDirector:
         pipeline.run_quality_monitor()
 
         # clean up space
-        pipeline._init_cleanup(namespace, stored_model.model._model_object.name)
+        #pipeline._init_cleanup(namespace, stored_model.model._model_object.name)
 
         return pipeline
 
