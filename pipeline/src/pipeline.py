@@ -259,9 +259,8 @@ class Pipeline:
         print(f'Wait {wait} seconds for WOS database to update...')
         time.sleep(wait)
         # log feedback
-        feature_order = [feature['name'] for feature in self.subscription.get_details()['entity']['asset_properties']['training_data_schema']['fields']]
-        feedback_data = self._dataset.data[feature_order]
-        
+        ordered_features_and_target = [col['name'] for col in self.subscription.get_details()['entity']['asset_properties']['training_data_schema']['fields']]
+        feedback_data = self._dataset.data[ordered_features_and_target]
 
         self.subscription.feedback_logging.store(feedback_data.values.tolist(), data_header=True)
         run_details = self.subscription.quality_monitoring.run(background_mode=False)
