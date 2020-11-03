@@ -1,5 +1,7 @@
 // Uses Declarative syntax to run commands inside a container.
-
+def SPACE_NAME
+def MODEL_ID
+def SPACE_ID
 pipeline {
     agent {
         kubernetes {
@@ -31,9 +33,6 @@ spec:
         }
     }
     stages {
-        def SPACE_NAME
-        def MODEL_ID
-        def SPACE_ID
         stage('Setup') {
             steps {
                 sh 'echo "Install required components..."'
@@ -58,7 +57,7 @@ spec:
         }
         stage('Deployment space setup') {
             steps{ 
-            script{
+        
                 env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep '${env.SPACE_NAME}' | awk 'END{print NR}'")
 
                 if(env.SPACES!=1){
@@ -69,13 +68,10 @@ spec:
                 if(env.SPACES=="0"){
                     env.CREATED_SPACE=sh(returnStdout: true, script: "cpdctl spaces create --name '${env.SPACE_NAME}'")
                 }
-                    env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'")
+                    env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
                     echo ${env.SPACE_ID}
                 
-
-
-
-            }              
+              
               
                              }
         }
