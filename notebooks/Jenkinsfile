@@ -52,7 +52,7 @@ spec:
         stage('Deployment space setup') {
             steps{ 
             script{
-                env.SPACES=sh(returnStdout:true, script:" cpdctl spaces list | grep '${env.SPACES}' | awk 'END{print NR}' ;").trim()
+                env.SPACES=sh(returnStdout:true, script:" cpdctl spaces list | grep '${env.SPACE_NAME}' | awk 'END{print NR}' ;").trim()
 
                 if(env.SPACES!=1){
                     echo "Deleting extra spaces"
