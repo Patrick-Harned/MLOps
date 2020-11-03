@@ -42,6 +42,7 @@ spec:
                 sh 'echo "Setup complete"'
                 sh 'export SPACE_NAME="p-test-space"'
                 sh 'export DEPLOY_NAME="p-test-deploy"'
+                sh 'export SPACE_NAME="p-test-space'
                 sh 'echo "Setting up cluster context"'
                 sh 'cpdctl config users set qa-user --username=admin --password=password;'
                 sh 'cpdctl config profiles set qa-cluster --user qa-user --url https://zen-cpd-zen.apps.pwh.ocp.csplab.local'
@@ -50,9 +51,7 @@ spec:
             }
         }
         stage('Deployment space setup') {
-            steps{
-                sh 'SPACE_NAME=p-test-space'
-               
+            steps{               
               sh """ str1=\$(cpdctl spaces list | grep \$SPACE_NAME | awk 'END{print NR}');\
                 if [[ \$str1 != 1 ]]; then \
                     echo "deleting extra spaces"; \
