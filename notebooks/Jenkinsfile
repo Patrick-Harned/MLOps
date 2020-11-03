@@ -99,13 +99,21 @@ spec:
             steps {
               sh '''
                 deployments=\$(cpdctl wml deployments list --space-id \$SPACE_ID |awk 'NR>1');\
-                echo \$deployments; \
+
+                echo \$deployments;\
+
                 if [[ \$deployments == "Nothing to show." ]]; then\
+
                     echo "Creating Deployment";\
+
                     cpdctl wml deployments create --name \$DEPLOY_NAME --online '{"description": "mlopsdeploy"}' --asset '{"id": "'"\$MODEL_ID"'"}' --space-id \$SPACE_ID;\
+
                 fi\
+
                 DEPLOY_ID=\$(cpdctl wml deployments list --space-id \$SPACE_ID | grep \$DEPLOY_NAME| awk '{print \$1}');\
+
                 echo \$DEPLOY_ID;\
+
 
                 '''
             }
