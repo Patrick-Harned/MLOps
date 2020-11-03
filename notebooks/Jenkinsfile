@@ -32,7 +32,7 @@ spec:
     stages {
         stage('Setup') {
             steps {
-                sh 'echo "Install required components..."'
+                sh 'echo "Install required components..."; apt-get install sudo -y'
                 sh 'sudo apt-get update -y; sudo apt-get install python3'
                 sh 'wget https://github.ibm.com/AILifecycle/cpdctl/releases/download/0.2.33/cpdctl_darwin_amd64 >cpdctl'
                 sh 'sudo chmod +x cpdctl; sudo mv cpdctl /opt/cpdctl; export PATH=$PATH:/opt'
