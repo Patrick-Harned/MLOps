@@ -115,11 +115,11 @@ spec:
         stage('Create/Update WOS Subscription'){
             steps{
                 sh 'DEPLOY_URL=$(cpdctl wml deployments get --deployment-id $DEPLOY_ID --space-id $SPACE_ID --output yaml | grep https | awk '{print $2}');echo $URL'
-                sh ' SERVICE_INSTANCE_ID=$(cpdctl wos service-providers list | awk 'NR>2 {print $1}'); echo $SERVICE_INSTANCE_ID'
-                sh ' DATA_MART_ID=$(cpdctl wos data-marts list | awk 'NR>2{print $1}'); echo $DATA_MART_ID '
-                sh ' URL="https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v4/models/$MODEL_ID?space_id=$SPACE_ID"'
-                sh ' ASSET='{"asset_id":"'"$MODEL_ID"'", "asset_type":"model" ,"problem_type":"multiclass", "input_data_type":"structured", "url":"'"$URL"'", "name":"'"$DEPLOY_NAME"'"}' '
-                sh ' DEPLOYMENT='{"deployment_id":"'"$DEPLOY_ID"'", "deployment_type":"online", "name":"'"$DEPLOY_NAME"'", "url": "'"$DEPLOY_URL"'", "scoring_endpoint":{ "request_headers": { "Content-Type": "application/json"}, "url":"'"$DEPLOY_URL"'"},     "service_provider_id": "fedb2dcd-1771-4705-88a1-b791a0bf5833"}''
+                sh ''' SERVICE_INSTANCE_ID=$(cpdctl wos service-providers list | awk 'NR>2 {print $1}'); echo $SERVICE_INSTANCE_ID'''
+                sh ''' DATA_MART_ID=$(cpdctl wos data-marts list | awk 'NR>2{print $1}'); echo $DATA_MART_ID '''
+                sh ''' URL="https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v4/models/$MODEL_ID?space_id=$SPACE_ID"   '''
+                sh ''' ASSET='{"asset_id":"'"$MODEL_ID"'", "asset_type":"model" ,"problem_type":"multiclass", "input_data_type":"structured", "url":"'"$URL"'", "name":"'"$DEPLOY_NAME"'"}' '''
+                sh ''' DEPLOYMENT='{"deployment_id":"'"$DEPLOY_ID"'", "deployment_type":"online", "name":"'"$DEPLOY_NAME"'", "url": "'"$DEPLOY_URL"'", "scoring_endpoint":{ "request_headers": { "Content-Type": "application/json"}, "url":"'"$DEPLOY_URL"'"}, "service_provider_id": "fedb2dcd-1771-4705-88a1-b791a0bf5833"}' '''
                 sh ' ASSET_PROPERTIES=$(cat asset_properties.json)'
                 sh '''
 
@@ -164,12 +164,12 @@ spec:
         stage('Score deployed model'){
 
             steps{
-                sh 'VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'
-                sh 'python -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '
-                sh ' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'
+                sh '''VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'''
+                sh '''python -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '''
+                sh ''' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'''
                 sh 'echo $MONITOR_INSTANCE_ID'
                 sh 'cpdctl wos monitors runs add --monitor-instance-id $MONITOR_INSTANCE_ID'
-                sh 'cpdctl wos monitors runs get --monitoring-run-id $(cpdctl wos monitors runs list --monitor-instance-id $MONITOR_INSTANCE_ID | awk 'NR==3{print $1}')  --monitor-instance-id $MONITOR_INSTANCE_ID --output yaml'
+                sh '''cpdctl wos monitors runs get --monitoring-run-id $(cpdctl wos monitors runs list --monitor-instance-id $MONITOR_INSTANCE_ID | awk 'NR==3{print $1}')  --monitor-instance-id $MONITOR_INSTANCE_ID --output yaml'''
             }
         }
     }
