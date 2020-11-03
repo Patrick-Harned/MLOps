@@ -54,17 +54,17 @@ spec:
                 sh 'export SPACE_NAME="p-test-space" '
                 sh """ 
 
-                str1=$(cpdctl spaces list | grep $SPACE_NAME | awk 'END{print NR}');
+                str1=\$(cpdctl spaces list | grep $SPACE_NAME | awk 'END{print NR}');
                 if [[ $str1 != 1 ]]; then
                     echo "deleting extra spaces";
-                    cpdctl spaces list | grep $SPACE_NAME | awk 'NR>1{print $1}' | xargs -I{} cpdctl spaces delete --space_id {};
+                    cpdctl spaces list | grep $SPACE_NAME | awk 'NR>1{print \$1}' | xargs -I{} cpdctl spaces delete --space_id {};
                 fi
                 if [[ $str1 == 0 ]]; then
                     echo "creating space";
                     cpdctl spaces create --name $SPACE_NAME;
                 else
                     cpdctl spaces list;
-                    export SPACE_ID=$(cpdctl spaces list | grep $SPACE_NAME | awk '{ print $1}');
+                    export SPACE_ID=\$(cpdctl spaces list | grep $SPACE_NAME | awk '{ print \$1}');
                     echo $SPACE_ID;
                 fi
 
@@ -80,12 +80,12 @@ spec:
                     echo "No models found, creating model";
                     cpdctl wml models create --name mlopsmodel --space-id $SPACE_ID --software-spec '{"name": "scikit-learn_0.22-py3.6"}' --type 'scikit-learn_0.22';
    
-                    export MODEL_ID=$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print $1}');
+                    export MODEL_ID=\$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print \$1}');
                     cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id $MODEL_ID --content-format 'binary' --space-id $SPACE_ID --output json;
 
                 else
                     cpdctl wml models list --space-id $SPACE_ID;
-                    export MODEL_ID=$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print $1}');
+                    export MODEL_ID=\$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print \$1}');
                     echo $MODEL_ID;
                     cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id $MODEL_ID --content-format 'binary' --space-id $SPACE_ID --output json;
    
