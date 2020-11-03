@@ -1,0 +1,177 @@
+// Uses Declarative syntax to run commands inside a container.
+pipeline {
+    agent {
+        kubernetes {
+            // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
+            // Or, to avoid YAML:
+            // containerTemplate {
+            //     name 'shell'
+            //     image 'ubuntu'
+            //     command 'sleep'
+            //     args 'infinity'
+            // }
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: shell
+    image: ubuntu
+    command:
+    - sleep
+    args:
+    - infinity
+'''
+            // Can also wrap individual steps:
+            // container('shell') {
+            //     sh 'hostname'
+            // }
+            defaultContainer 'shell'
+        }
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'echo "Install required components..."'
+                sh 'sudo apt-get update -y; sudo apt-get install python3'
+                sh 'wget https://github.ibm.com/AILifecycle/cpdctl/releases/download/0.2.33/cpdctl_darwin_amd64 >cpdctl'
+                sh 'sudo chmod +x cpdctl; sudo mv cpdctl /opt/cpdctl; export PATH=$PATH:/opt'
+                // sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv'
+                sh 'pip3 install ibm_ai_openscale -y; pip3 install ibm_watson_machine_learning -y'
+                sh 'echo "Setup complete"'
+                sh 'export SPACE_NAME="p-test-space"'
+                sh 'export DEPLOY_NAME="p-test-deploy"'
+                sh 'echo "Setting up cluster context"'
+                sh 'cpdctl config users set qa-user --username=admin --password=password;'
+                sh 'cpdctl config profiles set qa-cluster --user qa-user --url https://zen-cpd-zen.apps.pwh.ocp.csplab.local'
+                sh 'cpdctl config contexts set qa-context qa-cluster'
+
+            }
+        }
+        stage('Deployment space setup') {
+            steps{
+                sh 'export SPACE_NAME="p-test-space" '
+                sh ''' 
+
+                str1=$(cpdctl spaces list | grep $SPACE_NAME | awk 'END{print NR}')
+                if [[ $str1 != 1 ]]; then
+                    echo "deleting extra spaces";
+                    cpdctl spaces list | grep $SPACE_NAME | awk 'NR>1{print $1}' | xargs -I{} cpdctl spaces delete --space_id {}
+                fi
+                if [[ $str1 == 0 ]]; then
+                    echo "creating space"
+                    cpdctl spaces create --name $SPACE_NAME
+                else
+                    cpdctl spaces list
+                    export SPACE_ID=$(cpdctl spaces list | grep $SPACE_NAME | awk '{ print $1}')
+                    echo $SPACE_ID
+                fi
+
+                 '''
+            }
+        }
+        stage('Update model'){
+            steps{
+                sh '''
+                models=$(cpdctl wml models list --space-id $SPACE_ID | awk 'NR>1')
+                if [[ $models == "Nothing to show." ]]; then
+                    echo "No models found, creating model"
+                    cpdctl wml models create --name mlopsmodel --space-id $SPACE_ID --software-spec '{"name": "scikit-learn_0.22-py3.6"}' --type 'scikit-learn_0.22'
+   
+                    export MODEL_ID=$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print $1}')
+                    cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id $MODEL_ID --content-format 'binary' --space-id $SPACE_ID --output json
+
+                else
+                    cpdctl wml models list --space-id $SPACE_ID
+                    export MODEL_ID=$(cpdctl wml models list --space-id $SPACE_ID | grep mlopsmodel | awk '{ print $1}')
+                    echo $MODEL_ID
+                    cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id $MODEL_ID --content-format 'binary' --space-id $SPACE_ID --output json
+   
+                fi
+
+                '''
+                //notice we can update parameters defining the model
+
+
+
+            }
+        }
+        stage('Update Deployment'){
+            steps {
+              sh '''
+                deployments=$(cpdctl wml deployments list --space-id $SPACE_ID |awk 'NR>1')
+                echo $deployments
+                if [[ $deployments == "Nothing to show." ]]; then
+                    echo "Creating Deployment"
+                    cpdctl wml deployments create --name $DEPLOY_NAME --online '{"description": "mlopsdeploy"}' --asset '{"id": "'"$MODEL_ID"'"}' --space-id $SPACE_ID
+                fi
+                DEPLOY_ID=$(cpdctl wml deployments list --space-id $SPACE_ID | grep $DEPLOY_NAME| awk '{print $1}')
+                echo $DEPLOY_ID
+
+                '''
+            }
+        }
+
+        stage('Create/Update WOS Subscription'){
+            steps{
+                sh 'DEPLOY_URL=$(cpdctl wml deployments get --deployment-id $DEPLOY_ID --space-id $SPACE_ID --output yaml | grep https | awk '{print $2}');echo $URL'
+                sh ' SERVICE_INSTANCE_ID=$(cpdctl wos service-providers list | awk 'NR>2 {print $1}'); echo $SERVICE_INSTANCE_ID'
+                sh ' DATA_MART_ID=$(cpdctl wos data-marts list | awk 'NR>2{print $1}'); echo $DATA_MART_ID '
+                sh ' URL="https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v4/models/$MODEL_ID?space_id=$SPACE_ID"'
+                sh ' ASSET='{"asset_id":"'"$MODEL_ID"'", "asset_type":"model" ,"problem_type":"multiclass", "input_data_type":"structured", "url":"'"$URL"'", "name":"'"$DEPLOY_NAME"'"}' '
+                sh ' DEPLOYMENT='{"deployment_id":"'"$DEPLOY_ID"'", "deployment_type":"online", "name":"'"$DEPLOY_NAME"'", "url": "'"$DEPLOY_URL"'", "scoring_endpoint":{ "request_headers": { "Content-Type": "application/json"}, "url":"'"$DEPLOY_URL"'"},     "service_provider_id": "fedb2dcd-1771-4705-88a1-b791a0bf5833"}''
+                sh ' ASSET_PROPERTIES=$(cat asset_properties.json)'
+                sh '''
+
+                SUBSCRIPTION_ID=$(python -c "import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])" "$(cpdctl wos subscriptions list --output json)" $DEPLOY_NAME)
+                if [ -z "$SUBSCRIPTION_ID" ]
+                then 
+                    echo "Subscription not found"
+                    cpdctl wos subscriptions add --asset "$ASSET" --deployment "$DEPLOYMENT" --data-mart-id "$DATA_MART_ID" --service-provider-id "$SERVICE_INSTANCE_ID" --asset-properties "$ASSET_PROPERTIES"
+                    sleep 10
+                    SUBSCRIPTION_ID=$(python -c "import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])" "$(cpdctl wos subscriptions list --output json)" $DEPLOY_NAME)
+                    sleep 10
+                    python -c "import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local'}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))"  $DEPLOY_NAME
+                else
+                    echo "Subscription found"
+                    echo $SUBSCRIPTION_ID
+                    echo "Deleting old subscription"
+                    cpdctl wos subscriptions delete --subscription-id $SUBSCRIPTION_ID
+                    cpdctl wos subscriptions add --asset "$ASSET" --deployment "$DEPLOYMENT" --data-mart-id "$DATA_MART_ID" --service-provider-id "$SERVICE_INSTANCE_ID" --asset-properties "$ASSET_PROPERTIES"
+                    sleep 10
+                    python -c "import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local'}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))"  $DEPLOY_NAME
+
+                    cpdctl wos subscriptions list
+                    sleep 5
+                fi
+                SUBSCRIPTION_ID=$(cpdctl wos subscriptions list | awk 'NR==3{print $1}')
+                echo $SUBSCRIPTION_ID
+                CONFIGURATIONS=$(cat configurations.json)
+                sleep 10
+                cpdctl wos subscriptions update --subscription-id $SUBSCRIPTION_ID --patch-document "[$CONFIGURATIONS]"
+                cpdctl wos subscriptions update --subscription-id $SUBSCRIPTION_ID --patch-document "[$ASSET_PROPERTIES]"
+                sleep 10
+                TOKEN=$(curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{"username":"admin", "password":"password" }' --header 'Accept: application/json' --header "Content-Type: application/json" | grep token | tr -d "{}" | awk -F":" '{ print $4}' | tr -d \")
+                curl  "https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/$DATA_MART_ID/service_bindings/$SERVICE_INSTANCE_ID/subscriptions/$SUBSCRIPTION_ID/file" -k --header "authorization: Bearer $TOKEN" --header 'content-type: application/json' | grep problem_type
+
+                '''
+
+            }
+
+
+        }
+
+        stage('Score deployed model'){
+
+            steps{
+                sh 'VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'
+                sh 'python -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '
+                sh ' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'
+                sh 'echo $MONITOR_INSTANCE_ID'
+                sh 'cpdctl wos monitors runs add --monitor-instance-id $MONITOR_INSTANCE_ID'
+                sh 'cpdctl wos monitors runs get --monitoring-run-id $(cpdctl wos monitors runs list --monitor-instance-id $MONITOR_INSTANCE_ID | awk 'NR==3{print $1}')  --monitor-instance-id $MONITOR_INSTANCE_ID --output yaml'
+            }
+        }
+    }
+}
+

@@ -5,6 +5,14 @@ output: github_document
 
 # Lowes
 
+# 
+
+ * Show deployment in Cp4D UI
+ * Slide with steps of pipeline execution
+ * research on metadata - can it be introspected?
+ * can we import as tar file?
+ 
+ 
 ### Cluster Endpoint: https://zen-cpd-zen.apps.pwh.ocp.csplab.local/zen/#/homepage
 ***Credentials Provisioned on Request***    
 

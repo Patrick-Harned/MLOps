@@ -1,0 +1,561 @@
+{
+  "op": "replace",
+  "path": "/configurations",
+  "value": {
+    "explainability": {},
+    "quality_monitoring": {
+      "max_rows_per_evaluation": 150,
+      "min_feedback_data_size": 1
+    },
+    "payload_logging": {
+      "data_set_id": "9edb21c7-3e57-4bca-a923-cf7772493641",
+      "dynamic_schema_update": false,
+      "manual_labeling_data_set_id": "4de0947a-3065-4cdc-9c6e-d043e286334d",
+      "output_data_schema": {
+        "fields": [
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column0",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column1",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column2",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column3",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column4",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column5",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column6",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column7",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column8",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column9",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column10",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column11",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column12",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column13",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column14",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column15",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column16",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column17",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column18",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column19",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column20",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column21",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column22",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column23",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column24",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column25",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column26",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column27",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column28",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column29",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column30",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column31",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column32",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column33",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column34",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column35",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column36",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column37",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column38",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column39",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column40",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column41",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column42",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column43",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column44",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column45",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column46",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column47",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column48",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column49",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column50",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column51",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column52",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column53",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column54",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column55",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column56",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column57",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column58",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column59",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column60",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column61",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column62",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "feature"
+            },
+            "name": "Column63",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "prediction"
+            },
+            "name": "prediction",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "metadata": {
+              "modeling_role": "probability"
+            },
+            "name": "probability",
+            "nullable": true,
+            "type": {
+              "containsNull": true,
+              "elementType": "double",
+              "type": "array"
+            }
+          },
+          {
+            "metadata": {
+              "modeling_role": "prediction-probability"
+            },
+            "name": "prediction_probability",
+            "nullable": true,
+            "type": "double"
+          }
+        ],
+        "type": "struct"
+      }
+    }
+  }
+}
