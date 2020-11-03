@@ -114,7 +114,7 @@ spec:
 
         stage('Create/Update WOS Subscription'){
             steps{
-                sh 'DEPLOY_URL=$(cpdctl wml deployments get --deployment-id $DEPLOY_ID --space-id $SPACE_ID --output yaml | grep https | awk '{print $2}');echo $URL'
+                sh '''DEPLOY_URL=$(cpdctl wml deployments get --deployment-id $DEPLOY_ID --space-id $SPACE_ID --output yaml | grep https | awk '{print $2}');echo $URL'''
                 sh ''' SERVICE_INSTANCE_ID=$(cpdctl wos service-providers list | awk 'NR>2 {print $1}'); echo $SERVICE_INSTANCE_ID'''
                 sh ''' DATA_MART_ID=$(cpdctl wos data-marts list | awk 'NR>2{print $1}'); echo $DATA_MART_ID '''
                 sh ''' URL="https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v4/models/$MODEL_ID?space_id=$SPACE_ID"   '''
