@@ -1,4 +1,5 @@
 // Uses Declarative syntax to run commands inside a container.
+def SPACE_NAME
 pipeline {
     agent {
         kubernetes {
