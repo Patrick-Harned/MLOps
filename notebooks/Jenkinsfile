@@ -51,7 +51,7 @@ spec:
         }
         stage('Deployment space setup') {
             steps{               
-              sh """ str1=\$(cpdctl spaces list | grep \$SPACE_NAME | awk 'END{print NR}');\
+              sh '''str1=\$(cpdctl spaces list | grep \$SPACE_NAME | awk 'END{print NR}');\
                 if [[ \$str1 != 1 ]]; then \
                     echo "deleting extra spaces"; \
                     cpdctl spaces list | grep \$SPACE_NAME | awk 'NR>1{print \$1}' | xargs -I{} cpdctl spaces delete --space_id {}; \
@@ -65,13 +65,13 @@ spec:
                     echo \$SPACE_ID;\
                 fi\
 
-                 """
+                 '''
                              }
         }
         stage('Update model'){
             steps{
                 sh '''models=\$(cpdctl wml models list --space-id \$SPACE_ID | awk 'NR>1');''' 
-                sh """
+                sh '''
                 
                 if [[ $models == "Nothing to show." ]]; then\
                     echo "No models found, creating model";\
@@ -88,7 +88,7 @@ spec:
    
                 fi \
 
-                """
+                '''
                 //notice we can update parameters defining the model
 
 
@@ -97,7 +97,7 @@ spec:
         }
         stage('Update Deployment'){
             steps {
-              sh """
+              sh '''
                 deployments=\$(cpdctl wml deployments list --space-id \$SPACE_ID |awk 'NR>1');\
                 echo \$deployments; \
                 if [[ \$deployments == "Nothing to show." ]]; then\
@@ -107,7 +107,7 @@ spec:
                 DEPLOY_ID=\$(cpdctl wml deployments list --space-id \$SPACE_ID | grep \$DEPLOY_NAME| awk '{print \$1}');\
                 echo \$DEPLOY_ID;\
 
-                """
+                '''
             }
         }
 
@@ -120,7 +120,7 @@ spec:
                 sh ''' ASSET='{"asset_id":"'"$MODEL_ID"'", "asset_type":"model" ,"problem_type":"multiclass", "input_data_type":"structured", "url":"'"$URL"'", "name":"'"$DEPLOY_NAME"'"}' '''
                 sh ''' DEPLOYMENT='{"deployment_id":"'"$DEPLOY_ID"'", "deployment_type":"online", "name":"'"$DEPLOY_NAME"'", "url": "'"$DEPLOY_URL"'", "scoring_endpoint":{ "request_headers": { "Content-Type": "application/json"}, "url":"'"$DEPLOY_URL"'"}, "service_provider_id": "fedb2dcd-1771-4705-88a1-b791a0bf5833"}' '''
                 sh ' ASSET_PROPERTIES=$(cat asset_properties.json)'
-                sh """
+                sh '''
 
                 SUBSCRIPTION_ID=\$(python -c "import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])" "\$(cpdctl wos subscriptions list --output json)" \$DEPLOY_NAME);
                 if [ -z "\$SUBSCRIPTION_ID" ];
@@ -153,7 +153,7 @@ spec:
                 TOKEN=\$(curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{"username":"admin", "password":"password" }' --header 'Accept: application/json' --header "Content-Type: application/json" | grep token | tr -d "{}" | awk -F":" '{ print \$4}' | tr -d \");
                 curl  "https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/\$DATA_MART_ID/service_bindings/\$SERVICE_INSTANCE_ID/subscriptions/\$SUBSCRIPTION_ID/file" -k --header "authorization: Bearer \$TOKEN" --header 'content-type: application/json' | grep problem_type;
 
-                """
+                '''
 
             }
 
