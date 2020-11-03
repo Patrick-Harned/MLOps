@@ -138,14 +138,15 @@ spec:
                     env.ASSET=sh(returnStdout: true, script: " echo '{\"asset_id\":\"${env.MODEL_ID}\", \"asset_type\":\"model\" ,\"problem_type\":\"multiclass\", \"input_data_type\":\"structured\", \"url\":\"${env.URL}\", \"name\": \"${env.DEPLOY_NAME}\" }' ").trim()
                     env.DEPLOYMENT=sh(returnStdout: true, script: " echo '{\"deployment_id\":\"${env.DEPLOY_ID}\", \"deployment_type\":\"online\", \"name\":\"${env.DEPLOY_NAME}\", \"url\": \"${env.DEPLOY_URL}\", \"scoring_endpoint\":{ \"request_headers\": { \"Content-Type\": \"application/json\"}, \"url\":\"${env.DEPLOY_URL}\"}, \"service_provider_id\": \"fedb2dcd-1771-4705-88a1-b791a0bf5833\"}' ").trim()
                     env.ASSET_PROPERTIES=sh(returnStdout: true, script: "cat notebooks/asset_properties.json").trim()
-                    env.DEPLOYMENTS = sh(returnStdout: true, script: " cpdctl wos subscriptions list --output json").trim()
-                    env.SUBSCRIPTION_ID=sh(returnStdout: true, script: " python3 -c \"import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])\" \"${env.DEPLOYMENTS}\"  \"${env.DEPLOY_NAME}\" ")
+                    env.DEPLOYMENTS=sh(returnStdout: true, script: "cpdctl wos subscriptions list --output json").trim()
+                    echo env.DEPLOYMENTS
+                    env.SUBSCRIPTION_ID=sh(returnStdout: true, script: " python3 -c 'import json, sys; subList=[x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"${env.DEPLOYMENTS}\"  \"${env.DEPLOY_NAME}\" ")
 
 
                 }
                 script{
 
-                    if( env.SUBSCRIPTION_ID==""){
+                    if( env.SUBSCRIPTION_ID==null){
                         echo "Subscription not found"
                         sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\" ").trim()
                         sleep(10)
