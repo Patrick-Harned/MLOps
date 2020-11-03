@@ -32,7 +32,9 @@ spec:
     stages {
         stage('Main') {
             steps {
-                sh 'pip install --no-cache-dir -r requirements.txt'
+                sh wget https://github.com/bantucaravan/temp_ci_app/raw/master/app.tar.gz
+                sh tar -xzvf app.tar.gz
+                sh 'pip install --no-cache-dir -r app/requirements.txt'
                 sh 'python app/main.py'
             }
         }
