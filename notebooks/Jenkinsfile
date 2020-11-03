@@ -51,10 +51,8 @@ spec:
         }
         stage('Deployment space setup') {
             steps{
-                sh 'export SPACE_NAME="p-test-space" '
-                sh """ 
-
-                str1=\$(cpdctl spaces list | grep $SPACE_NAME | awk 'END{print NR}');
+                sh 'SPACE_NAME=p-test-space'
+                sh ''' str1=\$(cpdctl spaces list | grep $SPACE_NAME | awk 'END{print NR}');
                 if [[ $str1 != 1 ]]; then
                     echo "deleting extra spaces";
                     cpdctl spaces list | grep $SPACE_NAME | awk 'NR>1{print \$1}' | xargs -I{} cpdctl spaces delete --space_id {};
@@ -68,8 +66,8 @@ spec:
                     echo $SPACE_ID;
                 fi
 
-                 """
-            }
+                 '''
+                             }
         }
         stage('Update model'){
             steps{
