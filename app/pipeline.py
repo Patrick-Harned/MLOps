@@ -17,8 +17,8 @@ import time
 import types
 import sys
 from io import StringIO
-import requests
 
+import requests
 import pandas as pd
 from ibm_watson_machine_learning import APIClient
 from ibm_ai_openscale import APIClient4ICP

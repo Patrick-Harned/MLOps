@@ -14,18 +14,28 @@ if __name__ == "__main__":
 
     from pipeline import Pipeline
 
-    
-    MODEL_METAPROPS_PATH = '../metaprops.yaml'
-    with open(MODEL_METAPROPS_PATH) as f:
-        metaprops = yaml.safe_load(f)
-    _dir = os.path.dirname(os.path.abspath(MODEL_METAPROPS_PATH))
-    metaprops['model_path'] = os.path.join(_dir, metaprops['model_path'])
+    # to get abs path for paths relative to a file, when file is evaluated 
+    # from other working dir.
+    def abs_path(abs_root_file, path):
+        _dir = os.path.dirname(os.path.abspath(abs_root_file))
+        return os.path.normpath(os.path.join(_dir, path))
+
+
+    MODEL_METAPROPS_PATH = abs_path(__file__, '../metaprops.yaml')
+    try:   
+        with open(MODEL_METAPROPS_PATH) as f:
+            metaprops = yaml.safe_load(f)
+    except FileNotFoundError as e:
+        raise type(e)('Model meta-properties yaml not found. File required for CI deployment.')
+    metaprops['model_path'] = abs_path(MODEL_METAPROPS_PATH, metaprops['model_path'])
 
     
-    CP4D_CONFIG_PATH = '../cp4d_config.yaml'
-    with open(CP4D_CONFIG_PATH) as f:
-        cp4d_config = yaml.safe_load(f)
-
+    CP4D_CONFIG_PATH = abs_path(__file__, '../cp4d_config.yaml')
+    try:
+        with open(CP4D_CONFIG_PATH) as f:
+            cp4d_config = yaml.safe_load(f)
+    except FileNotFoundError as e:
+        raise type(e)('CP4D platform config yaml not found. File required for CI deployment.')
 
 
     pipeline = Pipeline(**cp4d_config, **metaprops)
@@ -33,7 +43,7 @@ if __name__ == "__main__":
     pipeline.specification()
 
     pipeline.set_connection()
-    
+
     pipeline._init_cleanup()
 
     pipeline.set_project()
