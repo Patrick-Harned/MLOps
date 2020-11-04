@@ -72,6 +72,7 @@ spec:
                 }
                 sh "SPACE_ID=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}') "
                 sh 'echo \$SPACE_ID'
+                sh "printenv"
 
             }
         }
