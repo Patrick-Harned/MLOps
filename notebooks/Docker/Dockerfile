@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM image-registry.openshift-image-registry.svc:5000/openshift/mlopspipeline:latest
 
 RUN apt-get -y update; apt-get -y install wget; apt-get -y install python3-pip
 
