@@ -57,7 +57,7 @@ spec:
         }
         stage('Deployment space setup') {
             steps{ 
-                sh "SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR'} ) '"
+                sh "SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
                 sh "echo $SPACES"
             script{
                 env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
