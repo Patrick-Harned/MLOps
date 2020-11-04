@@ -50,7 +50,7 @@ spec:
                 sh 'cpdctl config profiles set qa-cluster --user qa-user --url https://zen-cpd-zen.apps.pwh.ocp.csplab.local'
                 sh 'cpdctl config contexts set qa-context qa-cluster'
                 sh "SPACE_ID=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}') "
-                sh 'echo $SPACE_ID'
+                sh 'echo \$SPACE_ID'
 
                 script{
                     env.SPACE_NAME="p-test-space"
