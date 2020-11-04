@@ -1,6 +1,5 @@
-FROM registry.redhat.io/rhel7/rhel
-RUN subscription-manager register --username=Patrick.Harned --password=jewelthiefstole12% --auto-attach
-RUN yum -y update; yum -y install wget; yum -y install python3-pip
+FROM ubuntu
+RUN apt-get -y update; apt-get -y install wget; apt-get -y install python3-pip
 
 RUN wget https://github.ibm.com/AILifecycle/cpdctl/releases/download/0.2.33/cpdctl_linux_amd64 >cpdctl
 
