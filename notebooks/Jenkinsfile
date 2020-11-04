@@ -68,8 +68,8 @@ spec:
                 if(env.SPACES=="0"){
                     env.CREATED_SPACE=sh(returnStdout: true, script: "cpdctl spaces create --name '${env.SPACE_NAME}'")
                 }
-                    SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
-                    echo $SPACE_ID
+                    env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
+                    echo env.SPACE_ID
                 
 
 
