@@ -3,6 +3,8 @@ def SPACE_NAME
 def MODEL_ID
 def SPACE_ID
 def SPACES
+def DELETED_SPACES
+def CREATED_SPACE
 pipeline {
     agent {
         kubernetes {
@@ -58,8 +60,8 @@ spec:
         }
         stage('Deployment space setup') {
             steps{ 
-                sh "export SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
-                sh "echo $SPACES"
+                def SPACES = sh "/export SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
+                sh "echo ${env.SPACES}"
             script{
                 env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
 
@@ -68,7 +70,7 @@ spec:
 
                     env.DELETED_SPACES=sh(returnStdout:true, script:   " cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'NR>1{print \$1}' | xargs -I{} cpdctl spaces delete --space_id {}  ").trim()
                 }
-                if(env.SPACES=="0"){
+                if(env.SPACES==0){
                     env.CREATED_SPACE=sh(returnStdout: true, script: "cpdctl spaces create --name ${env.SPACE_NAME}").trim()
                     sh 'printenv'
                 }
