@@ -53,22 +53,22 @@ spec:
                 script{
                     env.SPACE_NAME="p-test-space"
                     env.DEPLOY_NAME="p-test-deploy"
+                    env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
                 }
 
             }
         }
         stage('Deployment space setup') {
             steps{ 
-                sh "SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
                 sh "echo ${env.SPACES}"
-            
+
 
 
 
 
             script{
                 env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
-                echo ${env.SPACES}
+                echo "${env.SPACES}"
 
                 if(env.SPACES!=1){
                     echo "Deleting extra spaces"
