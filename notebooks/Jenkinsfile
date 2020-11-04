@@ -57,7 +57,7 @@ spec:
                 
 
                 script{
-                    def SPACE_ID = $/eval "cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{print $1}'"
+                    def SPACE_ID = $/eval "cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{print $1}'"/$
                     echo "${SPACE_ID}"
                     env.SPACE_NAME="p-test-space"
                     env.DEPLOY_NAME="p-test-deploy"
