@@ -57,7 +57,7 @@ spec:
                     env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
                     env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
                     echo "${env.SPACES}"
-                    env.TEST=sh(returnStdout:true: script:"cpdctl spaces list").trim()
+                    env.TEST=sh(returnStdout:true, script:"cpdctl spaces list").trim()
                     echo "${env.TEST}"
 
                     echo "${env.SPACE_ID}"
