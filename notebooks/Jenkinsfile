@@ -1,7 +1,6 @@
 // Uses Declarative syntax to run commands inside a container.
 def SPACE_NAME
 def MODEL_ID
-def SPACE_ID
 def SPACES
 def DELETED_SPACES
 pipeline {
