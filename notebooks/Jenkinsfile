@@ -59,10 +59,19 @@ spec:
         }
         stage('Deployment space setup') {
             steps{ 
-                sh "export ${env.SPACES}=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
+                sh "SPACES=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END {print NR}' ) "
                 sh "echo ${env.SPACES}"
+                env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
+                sh "echo ${env.SPACES}"
+                env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'")
+                sh "echo ${env.SPACES}"
+
+
+
+
             script{
                 env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
+                echo ${env.SPACES}
 
                 if(env.SPACES!=1){
                     echo "Deleting extra spaces"
