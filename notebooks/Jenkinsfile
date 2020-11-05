@@ -4,6 +4,7 @@ def MODEL_ID
 def SPACE_ID
 def DELETED_SPACES
 def MODEL_NAME="mlopsmodel"
+def SPACES=0
 pipeline {
     agent {
         kubernetes {
@@ -78,7 +79,7 @@ spec:
 
 
             script{
-                env.SPACES=sh(returnStdout: true, script:" cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'  ")
+                env.SPACES=sh(returnStdout: true, script:" cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'  ").trim()
 
        
 
