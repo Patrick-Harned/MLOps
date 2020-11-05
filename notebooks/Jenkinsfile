@@ -1,8 +1,9 @@
 // Uses Declarative syntax to run commands inside a container.
 def SPACE_NAME
 def MODEL_ID
-def SPACES
+def SPACE_ID
 def DELETED_SPACES
+def MODEL_NAME="mlopsmodel"
 pipeline {
     agent {
         kubernetes {
@@ -51,29 +52,18 @@ spec:
                 sh 'cpdctl config contexts set qa-context --profile qa-cluster'
                 sh 'cpdctl config contexts use qa-context'
                 sh 'cpdctl spaces list'
-
-
                 
                 
 
                 script{
-                    def SPACE_ID = $/eval "cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{print $1}'"/$
-                    echo "${SPACE_ID}"
                     env.SPACE_NAME="p-test-space"
                     env.DEPLOY_NAME="p-test-deploy"
-                    env.SPACES=sh(returnStdout:true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'").trim()
                     env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
-                    echo "${env.SPACES}"
-                    env.TEST=sh(returnStdout:true, script:"cpdctl spaces list").trim()
-                    echo "${env.TEST}"
-
+                    
                     echo "${env.SPACE_ID}"
-                    echo "LS = ${env.LS}"
-
+                   
                 }
-                sh "SPACE_ID=\$(cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}') "
-                sh 'echo \$SPACE_ID'
-                sh "printenv"
+               
 
             }
         }
@@ -84,11 +74,15 @@ spec:
 
 
 
+
+
+
             script{
+                env.SPACES=sh(returnStdout: true, script:" cpdctl spaces list | grep ${env.SPACE_NAME} | awk 'END{print NR}'  ")
 
        
 
-                if(env.SPACES!=1){
+                if(env.SPACES>1){
                     echo "Deleting extra spaces"
                     
 
@@ -114,17 +108,17 @@ spec:
 
                 script{
 
-                    env.MODELS = sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | awk 'NR>1'").trim()
+                    env.MODELS = sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | grep | ${env.MODEL_NAME} |  awk 'END {print NR}' ").trim()
 
-                    if(env.MODELS=="Nothing to show."){
+                    if(env.MODELS==0){
                         env.NEW_MODEL=sh(returnStdout: true, script: "cpdctl wml models create --name mlopsmodel --space-id ${env.SPACE_ID} --software-spec '{\"name\": \"scikit-learn_0.22-py3.6\"}' --type 'scikit-learn_0.22'").trim()
                         env.MODEL_ID=sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | grep mlopsmodel | awk '{ print \$1}' ").trim()
-                        env.MODEL_CONTENT=sh(returnStdout: true, script:  " cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id ${env.MODEL_ID} --content-format 'binary' --space-id ${env.SPACE_ID} --output json  "  ).trim()
+                        env.MODEL_CONTENT=sh(returnStdout: true, script:  " cpdctl wml models upload-content --body notebooks/mlopsmodelpipeline.tar.gz --model-id ${env.MODEL_ID} --content-format 'binary' --space-id ${env.SPACE_ID} --output json  "  ).trim()
 
                     }else{
 
                         env.MODEL_ID = sh(returnStdout: true, script: " cpdctl wml models list --space-id ${env.SPACE_ID} | grep mlopsmodel | awk '{ print \$1}' ").trim()
-                        env.MODEL_CONTENT=sh(returnStdout: true, script:  " cpdctl wml models upload-content --body mlopsmodelpipeline.tar.gz --model-id ${env.MODEL_ID} --content-format 'binary' --space-id ${env.SPACE_ID} --output json  "  ).trim()
+                        env.MODEL_CONTENT=sh(returnStdout: true, script:  " cpdctl wml models upload-content --body notebooks/mlopsmodelpipeline.tar.gz --model-id ${env.MODEL_ID} --content-format 'binary' --space-id ${env.SPACE_ID} --output json  "  ).trim()
 
 
 
@@ -233,7 +227,7 @@ spec:
         stage('Score deployed model'){
 
             steps{
-                sh '''VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'''
+                sh '''VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' notebooks/datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'''
                 sh '''python -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '''
                 sh ''' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'''
                 sh 'echo $MONITOR_INSTANCE_ID'
