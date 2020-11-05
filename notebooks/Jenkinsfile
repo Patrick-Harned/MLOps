@@ -3,7 +3,6 @@ def SPACE_NAME
 def MODEL_ID
 def SPACE_ID
 def DELETED_SPACES
-def MODEL_NAME="mlopsmodel"
 def SPACES=0
 pipeline {
     agent {
@@ -35,6 +34,10 @@ spec:
             defaultContainer 'shell'
         }
     }
+    environment{
+        MODEL_NAME='mlopsmodel'
+    }
+
     stages {
         stage('Setup') {
             
@@ -109,7 +112,7 @@ spec:
 
                 script{
 
-                    env.MODELS = sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | grep | ${env.MODEL_NAME} |  awk 'END {print NR}' ").trim()
+                    env.MODELS = sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | grep  ${env.MODEL_NAME} |  awk 'END {print NR}' ").trim()
 
                     if(env.MODELS==0){
                         env.NEW_MODEL=sh(returnStdout: true, script: "cpdctl wml models create --name mlopsmodel --space-id ${env.SPACE_ID} --software-spec '{\"name\": \"scikit-learn_0.22-py3.6\"}' --type 'scikit-learn_0.22'").trim()
