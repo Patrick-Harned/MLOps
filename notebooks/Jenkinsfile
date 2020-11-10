@@ -166,8 +166,8 @@ spec:
                     env.SERVICE_INSTANCE_ID=sh(returnStdout:true, script: " cpdctl wos service-providers list | awk 'NR>2 {print \$1}' ").trim()
                     env.DATA_MART_ID=sh(returnStdout: true, script:  "cpdctl wos data-marts list | awk 'NR>2{print \$1}'" ).trim()
                     env.URL=sh(returnStdout: true, script:   "echo  https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v4/models/${env.MODEL_ID}?space_id=${env.SPACE_ID}  ").trim()
-                    env.ASSET="{\"asset_id\":\"${env.MODEL_ID}\", \"asset_type\":\"model\" ,\"problem_type\":\"multiclass\", \"input_data_type\":\"structured\", \"url\":\"${env.URL}\", \"name\": \"${env.DEPLOY_NAME}\" }"
-                    env.DEPLOYMENT="{\"deployment_id\":\"${env.DEPLOY_ID}\", \"deployment_type\":\"online\", \"name\":\"${env.DEPLOY_NAME}\", \"url\": \"${env.DEPLOY_URL}\", \"scoring_endpoint\":{ \"request_headers\": { \"Content-Type\": \"application/json\"}, \"url\":\"${env.DEPLOY_URL}\"}, \"service_provider_id\": \"fedb2dcd-1771-4705-88a1-b791a0bf5833\"}"
+                    env.ASSET="{\\\"asset_id\":\\\"${env.MODEL_ID}\\\", \\\"asset_type\\\":\\\"model\\\" ,\\\"problem_type\\\":\\\"multiclass\\\", \\\"input_data_type\\\":\\\"structured\\\", \\\"url\\\":\\\"${env.URL}\\\", \\\"name\\\": \\\"${env.DEPLOY_NAME}\\\" }"
+                    env.DEPLOYMENT="{\\\"deployment_id\\\":\\\"${env.DEPLOY_ID}\\\", \\\"deployment_type\\\":\\\"online\\\", \\\"name\\\":\\\"${env.DEPLOY_NAME}\\\", \\\"url\\\": \\\"${env.DEPLOY_URL}\\\", \\\"scoring_endpoint\\\":{ \\\"request_headers\\\": { \\\"Content-Type\\\": \\\"application/json\\\"}, \\\"url\\\":\\\"${env.DEPLOY_URL}\\\"}, \\\"service_provider_id\\\": \\\"fedb2dcd-1771-4705-88a1-b791a0bf5833\\\"}"
                     env.ASSET_PROPERTIES=sh(returnStdout: true, script: "cat notebooks/asset_properties.json").trim()
                     env.SUBSCRIPTIONS=sh(returnStdout: true, script: "cpdctl wos subscriptions list --output=json").trim()
                     echo env.SUBSCRIPTIONS
@@ -179,7 +179,7 @@ spec:
 
                     if( env.SUBSCRIPTION_ID=="None"){
                         echo "Subscription not found"
-                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset ${env.ASSET} --deployment ${env.DEPLOYMENT}  --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"[`cat notebooks/asset_properties.json`]\" ")
+                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset ${env.ASSET} --deployment ${env.DEPLOYMENT} --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"[`cat notebooks/asset_properties.json`]\" ").trim()
                         sleep(10)
                         env.SUBSCRIPTIONS=sh(returnStdout:true, script: "cpdctl wos subscriptions list --output=json").trim()
                         env.SUBSCRIPTION_ID=sh(returnStdout: true, script: "python3 -c 'import json, sys; subList=[x.get(\"metadata\").get(\"id\") for x in json.loads(sys.argv[1]).get(\"subscriptions\") if x.get(\"entity\").get(\"deployment\").get(\"name\") ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"`cpdctl wos subscriptions list --output json`\"  \"${env.DEPLOY_NAME}\" ").trim()
