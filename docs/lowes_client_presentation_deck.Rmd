@@ -1,0 +1,20 @@
+---
+title: "lowes_CI_pipeline_presentation"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Problem Statement
+
+## Watson Product Overview
+- What is WML
+- What is WOS
+
+## Architecture Overview
+
+## Pipeline Steps 
+
+## Live Walkthru Overview
