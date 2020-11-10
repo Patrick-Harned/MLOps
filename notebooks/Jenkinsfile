@@ -212,7 +212,7 @@ spec:
                     def CONFIGURATIONS = readJSON file: 'notebooks/configurations.json'
                     echo env.CONFIGURATIONS
                     sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
-                    sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[${env.ASSET_PROPERTIES}]\"  ")
+                    sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/asset_properties.json`]\"  ")
                     sleep(10)
                     env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{\"username\":\"admin\", \"password\":\"password\" }' --header 'Accept: application/json' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" '{ print \$4}' | tr -d \"  " ).trim()
                     env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
