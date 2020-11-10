@@ -210,7 +210,7 @@ spec:
 
                     sleep(10)
                     def CONFIGURATIONS = readJSON file: 'notebooks/configurations.json'
-                    echo ${env.CONFIGURATIONS}
+                    echo env.CONFIGURATIONS
                     sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
                     sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[${env.ASSET_PROPERTIES}]\"  ")
                     sleep(10)
