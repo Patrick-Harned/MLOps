@@ -43,7 +43,7 @@ spec:
             
             steps {
                 sh 'echo "Install required components..."'
-               // sh ' apt-get update -y;  apt-get -y install python3-pip; apt-get -y install wget'
+               //sh ' apt-get update -y;  apt-get -y install python3-pip; apt-get -y install wget'
                 //sh 'wget https://github.ibm.com/AILifecycle/cpdctl/releases/download/0.2.33/cpdctl_darwin_amd64 >cpdctl'
                 //sh ' chmod +x cpdctl;  mv cpdctl /usr/local/bin/cpdctl; ls -al /usr/local/bin; cpdctl --version;'
                 // sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv'
@@ -121,7 +121,7 @@ spec:
 
                     }else{
 
-                        env.MODEL_ID = sh(returnStdout: true, script: " cpdctl wml models list --space-id ${env.SPACE_ID} | grep mlopsmodel | awk '{ print \$1}' ").trim()
+                        env.MODEL_ID = sh(returnStdout: true, script: "cpdctl wml models list --space-id ${env.SPACE_ID} | grep mlopsmodel | awk '{ print \$1}' ").trim()
                         env.MODEL_CONTENT=sh(returnStdout: true, script:  " cpdctl wml models upload-content --body notebooks/mlopsmodelpipeline.tar.gz --model-id ${env.MODEL_ID} --content-format 'binary' --space-id ${env.SPACE_ID} --output json  "  ).trim()
 
 
@@ -171,7 +171,7 @@ spec:
                     env.ASSET_PROPERTIES=sh(returnStdout: true, script: "cat notebooks/asset_properties.json").trim()
                     env.SUBSCRIPTIONS=sh(returnStdout: true, script: "cpdctl wos subscriptions list --output=json").trim()
                     echo env.DEPLOYMENTS
-                    env.SUBSCRIPTION_ID=sh(returnStdout: true, script: " python3 -c 'import json, sys; subList=[x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"[${env.SUBSCRIPTIONS}]\"  \"${env.DEPLOY_NAME}\" ")
+                    env.SUBSCRIPTION_ID=sh(returnStdout: true, script: "python3 -c 'import json, sys; subList=[x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"`cpdctl wos subscriptions list --output json`\"  \"${env.DEPLOY_NAME}\" ")
                     env.SUBSCRIPTION_ID=sh(returnStdout: true, script)
 
 
@@ -183,7 +183,7 @@ spec:
                         sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\" ").trim()
                         sleep(10)
                         env.SUBSCRIPTIONS=sh(returnStdout:true, script: "cpdctl wos subscriptions list --output=json").trim()
-                        env.SUBSCRIPTION_ID=sh(returnStdout:true, script: "python3 -c 'import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])' \"${env.SUBSCRIPTIONS}\" \"${env.DEPLOY_NAME}\" " )
+                        env.SUBSCRIPTION_ID=sh(returnStdout:true, script: 'python3 -c 'import json, sys; print([x.get('metadata').get('id') for x in json.loads(sys.argv[1]).get('subscriptions') if x.get('entity').get('deployment').get('name') ==sys.argv[2] ][0])' "${env.SUBSCRIPTIONS}" \"${env.DEPLOY_NAME}\" ' )
                         sleep(10)
                         sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local'}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))' \"${env.DEPLOY_NAME}\" ")
 
