@@ -179,7 +179,7 @@ spec:
 
                     if( env.SUBSCRIPTION_ID=="None"){
                         echo "Subscription not found"
-                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"[`cat notebooks/asset_properties.json`]\" --deployment \"${env.DEPLOYMENT}\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\" ").trim()
+                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"[`cat notebooks/asset_properties.json`]\" ").trim()
                         sleep(10)
                         env.SUBSCRIPTIONS=sh(returnStdout:true, script: "cpdctl wos subscriptions list --output=json").trim()
                         env.SUBSCRIPTION_ID=sh(returnStdout: true, script: "python3 -c 'import json, sys; subList=[x.get(\"metadata\").get(\"id\") for x in json.loads(sys.argv[1]).get(\"subscriptions\") if x.get(\"entity\").get(\"deployment\").get(\"name\") ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"`cpdctl wos subscriptions list --output json`\"  \"${env.DEPLOY_NAME}\" ").trim()
