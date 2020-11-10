@@ -193,7 +193,7 @@ spec:
                     echo "Subscription found"
                     echo "Deleting old subscription"
                     sh(returnStdout: true, script: "cpdctl wos subscriptions delete --subscription-id ${env.SUBSCRIPTION_ID} ")
-                    sh(returnStdout: true, script: "wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\"  ")
+                    sh(returnStdout: true, script: "cpdctl wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\"  ")
                     sleep(10)
                     sh(returnStdout: true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local'}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))'  \"${env.DEPLOYMENT}\" " )
                     sleep(5) 
