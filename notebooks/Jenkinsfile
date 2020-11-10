@@ -186,7 +186,6 @@ spec:
                         sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))' \"${env.DEPLOY_NAME}\" ")
 
 
-
                     }else{
 
                     echo "Subscription found"
@@ -211,8 +210,12 @@ spec:
                     sleep(10)
                     def CONFIGURATIONS = readJSON file: 'notebooks/configurations.json'
                     echo env.CONFIGURATIONS
-                    sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\"; exit 0 ").trim()
-                    sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/asset_properties.json`]\"; exit 0  ")
+                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS'){
+                        sh(returnStdout: true, script: "cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/asset_properties.json`]\"  ").trim()
+                        sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
+
+
+                    } 
                     sleep(10)
                     env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{\"username\":\"admin\", \"password\":\"password\" }' --header 'Accept: application/json' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" '{ print \$4}' | tr -d \"  " ).trim()
                     env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
