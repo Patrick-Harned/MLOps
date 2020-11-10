@@ -177,7 +177,7 @@ spec:
                 }
                 script{
 
-                    if( env.SUBSCRIPTION_ID==null){
+                    if( env.SUBSCRIPTION_ID==None){
                         echo "Subscription not found"
                         sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"${env.ASSET}\" --deployment \"${env.DEPLOYMENT}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"${env.ASSET_PROPERTIES}\" ").trim()
                         sleep(10)
