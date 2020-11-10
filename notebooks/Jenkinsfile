@@ -169,11 +169,7 @@ spec:
                     env.ASSET=sh(returnStdout:true, script: "echo \"{\\\"asset_id\\\":\\\"${env.MODEL_ID}\\\", \\\"asset_type\\\":\\\"model\\\" ,\\\"problem_type\\\":\\\"multiclass\\\", \\\"input_data_type\\\":\\\"structured\\\", \\\"url\\\":\\\"${env.URL}\\\", \\\"name\\\": \\\"${env.DEPLOY_NAME}\\\" }\">notebooks/asset.json").trim()
                     env.DEPLOYMENT=sh(returnStdout:true, script: "echo \"{\\\"deployment_id\\\":\\\"${env.DEPLOY_ID}\\\", \\\"deployment_type\\\":\\\"online\\\", \\\"name\\\":\\\"${env.DEPLOY_NAME}\\\", \\\"url\\\": \\\"${env.DEPLOY_URL}\\\", \\\"scoring_endpoint\\\":{ \\\"request_headers\\\": { \\\"Content-Type\\\": \\\"application/json\\\"}, \\\"url\\\":\\\"${env.DEPLOY_URL}\\\"}, \\\"service_provider_id\\\": \\\"fedb2dcd-1771-4705-88a1-b791a0bf5833\\\"}\">notebooks/deployment.json").trim()
                     env.ASSET_PROPERTIES=sh(returnStdout: true, script: "cat notebooks/asset_properties.json").trim()
-                    env.SUBSCRIPTIONS=sh(returnStdout: true, script: "cpdctl wos subscriptions list --output=json").trim()
-                    echo env.SUBSCRIPTIONS
-                    echo env.ASSET
-                    echo env.DEPLOYMENT
-                    sh(returnStdout: true, script: "cat notebooks/asset.json")
+                    
                     env.SUBSCRIPTION_ID=sh(returnStdout: true, script: "python3 -c 'import json, sys; subList=[x.get(\"metadata\").get(\"id\") for x in json.loads(sys.argv[1]).get(\"subscriptions\") if x.get(\"entity\").get(\"deployment\").get(\"name\") ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"`cpdctl wos subscriptions list --output json`\"  \"${env.DEPLOY_NAME}\" ").trim()
 
 
@@ -212,9 +208,10 @@ spec:
 
                 script{
 
-                    env.CONFIGURATIONS=sh(returnStdout: true, script: "cat notebooks/configurations.json"  ).trim()
                     sleep(10)
-                    sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[${env.CONFIGURATIONS}]\" ").trim()
+                    def CONFIGURATIONS = readJSON file: 'notebooks/configurations.json'
+                    echo ${env.CONFIGURATIONS}
+                    sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
                     sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[${env.ASSET_PROPERTIES}]\"  ")
                     sleep(10)
                     env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{\"username\":\"admin\", \"password\":\"password\" }' --header 'Accept: application/json' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" '{ print \$4}' | tr -d \"  " ).trim()
