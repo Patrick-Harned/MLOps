@@ -9,9 +9,19 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Problem Statement
 
-## Watson Product Overview
-- What is WML
-- What is WOS
+Scenario: A Data Scientist familiar with using Bitbucket for colaborative development and Jenkins for CI/CD workflows is working on a project.
+
+Problem: How to automatically trigger the deployment and accuracy monitoring of ML models with commits to a git re.
+
+Business Value: Remove time and expertise intensive steps to deploy and test models during development. Prevent models from suffering unnoticed from decreased accuracy over time due to distribution shift.
+
+
+## Cloud Pak for Data Product Overview
+
+- What is Watson Machine Learning?
+  - A robust tool that can deploy versioned machine learning models
+- What is Watson Openscale?
+  - A tool that automates monitoring of accuracy and fairness of machine learning models overtime with alerts and model explainability tooling.
 
 ## Architecture Overview
 
