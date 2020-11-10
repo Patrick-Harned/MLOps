@@ -217,9 +217,8 @@ spec:
 
                     } 
                     sleep(10)
-                    env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST \'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize\'  -d \'{\"username\":\"admin\", \"password\":\"password\" }\' --header \'Accept: application/json\' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" \'{ print \$4}\' | tr -d \"  " ).trim()
-                    env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
-                    echo env.SUBSCRIPTION_JSON
+                    //env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST \'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize\'  -d \'{\"username\":\"admin\", \"password\":\"password\" }\' --header \'Accept: application/json\' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" \'{ print \$4}\' | tr -d \"  " ).trim()
+                    //env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
 
 
                 }
