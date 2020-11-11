@@ -235,10 +235,9 @@ spec:
             steps{
                 script{
                 env.VALUES=sh(returnStdout:true, script:   '''awk -F"," -v OFS="," 'NR>1000{ print $0  }' notebooks/datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' '''  ).trim()
+                echo env.VALUES
                 
-                //sh(returnStdout: true, script: " python3 -c 'import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\" }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get(\"values\") ) ' \"${env.DEPLOY_NAME}\" \'{\"values\":\"[${env.VALUES}]\"}\'   ").trim()
-                sh(returnStdout: true, script: " python3 -c 'import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\" }).data_mart.subscriptions.get(name=sys.argv[1]) ' \"${env.DEPLOY_NAME}\"   ").trim()
-
+               
                 }
                 sh '''python3 -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[${env.VALUES}]"'}'  '''
                 sh ''' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'''
