@@ -4,6 +4,7 @@ def MODEL_ID
 def SPACE_ID
 def DELETED_SPACES
 def SPACES=0
+def Values
 pipeline {
     agent {
         kubernetes {
