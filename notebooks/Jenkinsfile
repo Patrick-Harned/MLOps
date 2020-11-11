@@ -4,6 +4,7 @@ def MODEL_ID
 def SPACE_ID
 def DELETED_SPACES
 def SPACES=0
+def Values
 pipeline {
     agent {
         kubernetes {
@@ -178,13 +179,14 @@ spec:
 
                     if( env.SUBSCRIPTION_ID=="None"){
                         echo "Subscription not found"
-                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"`cat notebooks/asset.json`\" --deployment \"`cat notebooks/deployment.json`\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\"  ").trim()
+                        sh(returnStdout:true, script:" cpdctl wos subscriptions add --asset \"`cat notebooks/asset.json`\" --deployment \"`cat notebooks/deployment.json`\" --data-mart-id \"${env.DATA_MART_ID}\" --service-provider-id \"${env.SERVICE_INSTANCE_ID}\" --asset-properties \"`cat notebooks/asset_properties.json`\" ").trim()
                         sleep(10)
-                        env.SUBSCRIPTIONS=sh(returnStdout:true, script: "cpdctl wos subscriptions list --output=json").trim()
                         env.SUBSCRIPTION_ID=sh(returnStdout: true, script: "python3 -c 'import json, sys; subList=[x.get(\"metadata\").get(\"id\") for x in json.loads(sys.argv[1]).get(\"subscriptions\") if x.get(\"entity\").get(\"deployment\").get(\"name\") ==sys.argv[2] ]; print(subList[0] if len(subList)==1 else None)' \"`cpdctl wos subscriptions list --output json`\"  \"${env.DEPLOY_NAME}\" ").trim()
                         sleep(10)
                         sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))' \"${env.DEPLOY_NAME}\" ")
-
+                        echo "Adding Configuration Information"
+                        sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
+                        sh(returnStdout: true, script: "cpdctl wos monitors instances add --data-mart-id ${env.DATA_MART_ID} --monitor-definition-id \"quality\" --parameters \'{\"min_feedback_data_size\":1, \"max_rows_per_evaluation\":150}' --target \'{\"target_id\":\"\'\"$SUBSCRIPTION_ID\"\'\", \"target_type\":\"subscription\"}\'  --thresholds \'[{\"metric_id\":\"accuracy\", \"type\":\"lower_limit\", \"value\":0.8}]\'"     )
 
 
                     }else{
@@ -211,12 +213,14 @@ spec:
                     sleep(10)
                     def CONFIGURATIONS = readJSON file: 'notebooks/configurations.json'
                     echo env.CONFIGURATIONS
-                    sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
-                    sh(returnStdout: true, script: "  cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/asset_properties.json`]\"  ")
+                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS'){
+                        sh(returnStdout: true, script: "cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/asset_properties.json`]\"  ").trim()
+
+
+                    } 
                     sleep(10)
-                    env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST 'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize'  -d '{\"username\":\"admin\", \"password\":\"password\" }' --header 'Accept: application/json' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" '{ print \$4}' | tr -d \"  " ).trim()
-                    env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
-                    echo env.SUBSCRIPTION_JSON
+                    //env.TOKEN=sh(returnStdout: true, script: "curl -k -X POST \'https://zen-cpd-zen.apps.pwh.ocp.csplab.local/icp4d-api/v1/authorize\'  -d \'{\"username\":\"admin\", \"password\":\"password\" }\' --header \'Accept: application/json\' --header \"Content-Type: application/json\" | grep token | tr -d \"{}\" | awk -F\":\" \'{ print \$4}\' | tr -d \"  " ).trim()
+                    //env.SUBSCRIPTION_JSON=sh(returnStdout: true, script: " curl https://zen-cpd-zen.apps.pwh.ocp.csplab.local/v1/data_marts/${env.DATA_MART_ID}/service_bindings/${env.SERVICE_INSTANCE_ID}/subscriptions/${env.SUBSCRIPTION_ID}/file -k --header \"authorization: Bearer ${env.TOKEN}\" --header 'content-type: application/json'   ").trim()
 
 
                 }
@@ -231,7 +235,7 @@ spec:
 
             steps{
                 sh '''VALUES=$(awk -F"," -v OFS="," 'NR>1000{ print $0  }' notebooks/datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' )'''
-                sh '''python -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '''
+                sh '''python3 -c "import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({'username':'admin', 'password':'password', 'url':'https://zen-cpd-zen.apps.pwh.ocp.csplab.local' }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get('values') ) " $DEPLOY_NAME '{"values":'"[$VALUES]"'}'  '''
                 sh ''' MONITOR_INSTANCE_ID=$(cpdctl wos monitors instances list | awk 'NR==3{print $1}')'''
                 sh 'echo $MONITOR_INSTANCE_ID'
                 sh 'cpdctl wos monitors runs add --monitor-instance-id $MONITOR_INSTANCE_ID'
