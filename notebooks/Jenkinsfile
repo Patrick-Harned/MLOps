@@ -49,14 +49,11 @@ spec:
                 //sh ' chmod +x cpdctl;  mv cpdctl /usr/local/bin/cpdctl; ls -al /usr/local/bin; cpdctl --version;'
                 // sh 'python pipeline/main.py scikit-learn_0.22-py3.6 mlops data.csv'
                 //sh 'pip3 install ibm_ai_openscale; pip3 install ibm_watson_machine_learning'
-                sh 'ls -al ./notebooks'
-                sh 'echo "Setup complete"'
                 sh 'echo "Setting up cluster context"'
                 sh 'cpdctl config users set qa-user --username=admin --password=password'
                 sh 'cpdctl config profiles set qa-cluster --user qa-user --url https://zen-cpd-zen.apps.pwh.ocp.csplab.local'
                 sh 'cpdctl config contexts set qa-context --profile qa-cluster'
                 sh 'cpdctl config contexts use qa-context'
-                sh 'cpdctl spaces list'
                 
                 
 
@@ -65,7 +62,6 @@ spec:
                     env.DEPLOY_NAME="p-test-deploy"
                     env.SPACE_ID=sh(returnStdout: true, script:"cpdctl spaces list | grep ${env.SPACE_NAME} | awk '{ print \$1}'").trim()
                     
-                    echo "${env.SPACE_ID}"
                    
                 }
                

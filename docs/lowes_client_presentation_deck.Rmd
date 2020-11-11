@@ -1,6 +1,8 @@
 ---
 title: "Jenkins/CP4D Model Deployment and Monitoring"
-output: ioslides_presentation
+output: 
+  ioslides_presentation:
+        widescreen: true
 ---
 
 ```{r setup, include=FALSE}
@@ -9,10 +11,13 @@ knitr::opts_chunk$set(echo = FALSE)
 #knitr::opts_chunk$set(out.hieght = 50)
 ```
 
-## Problem Statement
+## Streamlining the AI Lifecycle
 
 **Problem**:   
 How to automate the deployment and risk management of version-controlled ML models ?
+
+**Solution**:
+CDI pipelines integrating with Watson Machine Learning and Watson Openscale on Cloud Pak for Data
 
 **Solution Business Value:**  
 - Streamline deployment of ML models, reduce time to market; accelerate AI Lifecycle.   
@@ -30,20 +35,20 @@ How to automate the deployment and risk management of version-controlled ML mode
 - Jenkins
   - Automation tool to build, test and deploy software.
 
-## Architecture Overview
+##  
 
 ```{r, out.width = 600, out.hieght = 600, fig.align='center'}
-knitr::include_graphics("../plot.png")
+knitr::include_graphics("../plot.png"  )
 ```
+
 
 
 ## Pipeline Steps 
 
 1. Store model binary in the WML repository
-2. Deploy the model as a REST API
+2. Deploy the model as a REST API in Watson Machine Learning
 3. Subscribe the model to  Watson Openscale
-4. Score the model and collect feedback data to test its performance
+4. Score and validate the models performance in Watson Openscale 
 
 
 
-## Live Walkthru Overview
