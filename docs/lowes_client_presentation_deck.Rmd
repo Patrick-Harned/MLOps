@@ -1,30 +1,40 @@
 ---
-title: "lowes_CI_pipeline_presentation"
+title: "Jenkins/CP4D Model Deployment and Monitoring"
 output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+#knitr::opts_chunk$set(out.width = 50)
+#knitr::opts_chunk$set(out.hieght = 50)
 ```
 
 ## Problem Statement
 
-Scenario: A Data Scientist familiar with using Bitbucket for colaborative development and Jenkins for CI/CD workflows is working on a project.
+**Problem**:   
+How to automatically trigger the deployment and accuracy monitoring of ML models with each commit to a project git repository?
 
-Problem: How to automatically trigger the deployment and accuracy monitoring of ML models with commits to a git re.
-
-Business Value: Remove time and expertise intensive steps to deploy and test models during development. Prevent models from suffering unnoticed from decreased accuracy over time due to distribution shift.
+**Solution Business Value:**  
+- Remove time and expertise intensive steps to deploy and test models during development.   
+- Prevent harm to your ML based workload from decreased accuracy over time due to data distribution shift.
 
 
 ## Cloud Pak for Data Product Overview
 
 - What is Watson Machine Learning?
-  - A robust tool that can deploy versioned machine learning models
+  - A tool for deploying versioned machine learning models as REST APIs.
 - What is Watson Openscale?
-  - A tool that automates monitoring of accuracy and fairness of machine learning models overtime with alerts and model explainability tooling.
+  - A tool that monitors the accuracy and fairness of machine learning models overtime with alerts and model explainability tooling.
 
 ## Architecture Overview
 
+```{r, out.width = 600, out.hieght = 600, fig.align='center'}
+knitr::include_graphics("../plot.png")
+```
+
+
 ## Pipeline Steps 
+
+
 
 ## Live Walkthru Overview
