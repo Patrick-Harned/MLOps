@@ -12,19 +12,23 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Problem Statement
 
 **Problem**:   
-How to automatically trigger the deployment and accuracy monitoring of ML models with each commit to a project git repository?
+How to automate the deployment and risk management of version-controlled ML models ?
 
 **Solution Business Value:**  
-- Remove time and expertise intensive steps to deploy and test models during development.   
-- Prevent harm to your ML based workload from decreased accuracy over time due to data distribution shift.
+- Streamline deployment of ML models, reduce time to market; accelerate AI Lifecycle.   
+- Detect and remedy poor performing algorithms quickly by integrating risk management tooling into CDI Pipeline for ML models;.
 
 
 ## Cloud Pak for Data Product Overview
 
-- What is Watson Machine Learning?
-  - A tool for deploying versioned machine learning models as REST APIs.
-- What is Watson Openscale?
-  - A tool that monitors the accuracy and fairness of machine learning models overtime with alerts and model explainability tooling.
+- Watson Machine Learning
+  - Deploy and manage machine learning models.
+- Watson Openscale
+  - Monitor performance of deployed machine learning models; Validate and test models to mitigate operational risk.
+- CPDCTL
+  - Command line tool for orchestrating Cloud Pak for Data workflows.
+- Jenkins
+  - Automation tool to build, test and deploy software.
 
 ## Architecture Overview
 
@@ -34,6 +38,11 @@ knitr::include_graphics("../plot.png")
 
 
 ## Pipeline Steps 
+
+1. Store model binary in the WML repository
+2. Deploy the model as a REST API
+3. Subscribe the model to  Watson Openscale
+4. Score the model and collect feedback data to test its performance
 
 
 
