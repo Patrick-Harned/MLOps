@@ -239,7 +239,7 @@ spec:
                 sh(returnStdout: true, script: "python3 -c 'import sys, json; print(json.loads(sys.argv[1]))' '{\"values\":\"hello\"}' " )
 
                 sh(returnStdout: true, script: "python3 -c 'import sys, json; print(json.loads(sys.argv[1]))' '{\"values\":[${env.VALUES}]}' " )
-                //sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(json.loads(sys.argv[1]))' \"${env.VALUES}\" ")
+                sh(returnStdout: true, script: "python3 -c 'import sys,json; from ibm_ai_openscale import APIClient4ICP; APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\" }).data_mart.subscriptions.get(name=sys.argv[1]).feedback_logging.store(json.loads(sys.argv[2]).get(\"values\") )' \"${env.DEPLOY_NAME}\" '{\"values\":[${env.VALUES}]}'  ")
 
                 
                
