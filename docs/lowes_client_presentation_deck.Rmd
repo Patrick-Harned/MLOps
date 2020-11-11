@@ -7,8 +7,6 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-#knitr::opts_chunk$set(out.width = 50)
-#knitr::opts_chunk$set(out.hieght = 50)
 ```
 
 ## Streamlining the AI Lifecycle
@@ -16,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 **Problem**:   
 How to automate the deployment and risk management of version-controlled ML models ?
 
-**Solution**:
+**Solution**:  
 CDI pipelines integrating with Watson Machine Learning and Watson Openscale on Cloud Pak for Data
 
 **Solution Business Value:**  
@@ -48,7 +46,7 @@ knitr::include_graphics("../plot.png"  )
 1. Store model binary in the WML repository
 2. Deploy the model as a REST API in Watson Machine Learning
 3. Subscribe the model to  Watson Openscale
-4. Score and validate the models performance in Watson Openscale 
+4. Score and validate model performance in Watson Openscale 
 
 
 
