@@ -236,7 +236,8 @@ spec:
                 script{
                 env.VALUES=sh(returnStdout:true, script:   '''awk -F"," -v OFS="," 'NR>1000{ print $0  }' notebooks/datawoprob.csv | rev| cut -c 3- | rev | awk -F"," -v OFS="," '{printf t "["$0"]"}{t=", "}' '''  ).trim()
                 echo env.VALUES
-                sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(json.loads(sys.argv[1]))' \"${env.VALUES}\" ")
+                sh(returnStdout: true, script: "python3 -c 'import sys, json; print(json.loads(sys.argv[1]))' '{\"values\":${env.VALUES}}' " )
+                //sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(json.loads(sys.argv[1]))' \"${env.VALUES}\" ")
 
                 
                
