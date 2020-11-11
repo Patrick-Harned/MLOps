@@ -186,6 +186,7 @@ spec:
                         sh(returnStdout:true, script: "python3 -c 'import sys; from ibm_ai_openscale import APIClient4ICP; client = APIClient4ICP({\"username\":\"admin\", \"password\":\"password\", \"url\":\"https://zen-cpd-zen.apps.pwh.ocp.csplab.local\"}); print(client.data_mart.subscriptions.get(name=sys.argv[1]).payload_logging.enable(dynamic_schema_update=True))' \"${env.DEPLOY_NAME}\" ")
                         echo "Adding Configuration Information"
                         sh(returnStdout: true, script: " cpdctl wos subscriptions update --subscription-id ${env.SUBSCRIPTION_ID} --patch-document \"[`cat notebooks/configurations.json`]\" ").trim()
+                        sh(returnStdout: true, script: "cpdctl wos monitors instances add --data-mart-id ${env.DATA_MART_ID} --monitor-definition-id \"quality\" --parameters \'{\"min_feedback_data_size\":1, \"max_rows_per_evaluation\":150}' --target \'{\"target_id\":\"\'\"$SUBSCRIPTION_ID\"\'\", \"target_type\":\"subscription\"}\'  --thresholds \'[{\"metric_id\":\"accuracy\", \"type\":\"lower_limit\", \"value\":0.8}]\'"     )
 
 
                     }else{
