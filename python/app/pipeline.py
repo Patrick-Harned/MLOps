@@ -68,13 +68,20 @@ class Pipeline:
 
 
     def set_connection(self, username=None, password=None, url=None):
-        '''Instantiate WML and WOS python clients'''
+        '''
+        Instantiate WML and WOS python clients.
+
+        Uses the same CP4D credentials for both WML and WOS, meaning both 
+        services must be on same CP4D cluster.
+
+        Passed values override ENV vars which override default values.
+        '''
         
         _credentials = {"username": username, "password": password, "url": url}
         
         # check for env vars if args not passed
-        env_keys = dict(zip(_credentials.keys(), ['WML_USERNAME', "WML_PASSWORD", "CP4D_URL"]))
-        _credentials = {k:v if v else os.environ.get(env_keys[k]) for k,v in _credentials.items()}
+        env_keys = dict(zip(_credentials.keys(), ['CP4D_USERNAME', "CP4D_PASSWORD", "CP4D_URL"]))
+        _credentials = {k: v if v else os.environ.get(env_keys[k]) for k,v in _credentials.items()}
 
         # get default values if args not passed and env vars not present
         defaults = {"username": "admin", "password": "password",
@@ -103,12 +110,18 @@ class Pipeline:
         project_uid_list = [x.get('metadata').get('guid') for x in  requests.get(self._credentials.get('url') + '/v2/projects/', headers=headers, verify=False).json().get('resources') if x.get('entity').get('name')==self.project_name]
         # set project
         # ISSUE: setting default CP$D project seems to unset the default deployment space!
+        if len(project_uid_list) < 1:
+            raise ValueError((f'No project named {self.project_name} exists in'
+                ' your CP4D Instance. Please provide the name of an existing project.'))
         self.project_uid = project_uid_list[0]
         self.wml_client.set.default_project(self.project_uid)
 
         def get_asset_details(self, project_uid=None):
             if project_uid:
                 self.set.default_project(project_uid)
+            if self.default_project_id is None:
+                raise ValueError(('There is no default project set. Set a '
+                        'default project first or pass a project_uid to this function.'))
             temp_stdout = StringIO()
             true_stdout = sys.stdout
             sys.stdout = temp_stdout
@@ -179,7 +192,12 @@ class Pipeline:
 
     def store_model(self, model_path=None, model_name=None, model_type=None, 
         software_spec=None):
-        '''Store a python ML model in the WML instance's repository'''
+        '''
+        Store a python ML model in the WML instance's repository
+        
+        Params:
+            model_path: (str) model must be a .tar.gz file
+        '''
         if model_name: self.model_name = model_name
         if model_path: self.model_path = model_path
         if model_type: self.model_type = model_type

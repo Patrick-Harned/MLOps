@@ -1,8 +1,7 @@
 
 
-
 # import sys
-# sys.path.insert(0, sys.path[0].rstrip('/pipeline/src'))
+# sys.path.insert(0, sys.path[0].rstrip('app/'))
 # %load_ext autoreload
 # %autoreload 2
 
@@ -13,8 +12,12 @@ from app.pipeline import Pipeline
 pipeline = Pipeline()
 pipeline.set_connection()
 pipeline.set_project('mlops')
-pipeline.set_namespace('')
-#pipeline._Pipeline__connection.wml_client.data_assets.create(val_filename, val_filename)
+pipeline.set_namespace('noah-test-space')
+#pipeline._init_cleanup(deployment_space_name='noah-test-space', model_name='mlops')
+
+
+
+
 
 
 
