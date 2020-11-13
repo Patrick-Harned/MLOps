@@ -1,6 +1,6 @@
-FROM python:3.6
+# This Dockerfile is for building the app image to be later used in the Jenkins pipeline.
 
-#WORKDIR /usr/src/app
+FROM python:3.6
 
 COPY . .
 
