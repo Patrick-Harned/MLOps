@@ -31,3 +31,9 @@ oc start-build $BC_NAME
 
 # resulting image
 #image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app:latest
+
+
+ docker build python/app -t lowes_python_app_test
+ docker tag lowes_python_app_test image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
+ docker push image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
+ # service unavailable error
