@@ -32,6 +32,8 @@ spec:
     stages {
         stage('Main') {
             steps {
+                sh 'pwd'
+                sh 'ls -1a'
                 sh 'python main.py'
             }
         }
