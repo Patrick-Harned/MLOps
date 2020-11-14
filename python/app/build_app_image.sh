@@ -25,15 +25,20 @@ export BC_NAME=lowes-python-app
 
 # create buildConfig and build and push image based on it. 
 oc new-build $REPO_BRANCH --context-dir=python/app --source-secret=$SECRET_NAME --name=$BC_NAME
+oc logs -f bc/$BC_NAME
 
 # only necessary if build from new-build failed.
-oc start-build $BC_NAME
+oc start-build $BC_NAME -F
 
 # resulting image
 #image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app:latest
 
 
- docker build python/app -t lowes_python_app_test
- docker tag lowes_python_app_test image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
- docker push image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
- # service unavailable error
+
+
+
+### alt approach
+docker build python/app -t lowes_python_app_test
+docker tag lowes_python_app_test image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
+docker push image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
+# service unavailable error
