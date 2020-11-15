@@ -37,7 +37,6 @@ spec:
                 sh 'ls -1a'
                 sh 'ls / -1a'
                 sh 'ls ./python -1a'
-                sh 'find / *app*'
                 // config.yaml path is relative the parent dir of main.py
                 sh 'python python/src/app/main.py ../../config.yaml'
             }
