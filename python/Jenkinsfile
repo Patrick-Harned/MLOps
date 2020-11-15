@@ -38,8 +38,8 @@ spec:
                 sh 'ls / -1a'
                 sh 'ls ./python -1a'
                 sh 'ls /src/ -1a'
-                // config.yaml path is relative to source repo root
-                sh 'python /src/app/main.py python/config.yaml'
+                // working dir is source repo root
+                sh 'python /src/app/main.py $PWD/python/config.yaml'
             }
         }
 
