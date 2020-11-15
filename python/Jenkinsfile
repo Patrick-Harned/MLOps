@@ -16,7 +16,7 @@ kind: Pod
 spec:
   containers:
   - name: shell
-    image: image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app@sha256:965f154a3f0695c961fff47c914521c3e8d31169dc01fec31f0ed3f005004122
+    image: image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app:latest
     command:
     - sleep
     args:
@@ -34,7 +34,7 @@ spec:
             steps {
                 sh 'pwd'
                 sh 'ls -1a'
-                sh 'python app/main.py'
+                sh 'python src/app/main.py ../../config.yaml'
             }
         }
 
