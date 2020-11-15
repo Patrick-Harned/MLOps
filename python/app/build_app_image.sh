@@ -38,7 +38,10 @@ oc start-build $BC_NAME -F
 
 
 ### alt approach
-docker build python/app -t lowes_python_app_test
-docker tag lowes_python_app_test image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
-docker push image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local:5000/openshift/lowes_python_app_test
+export APP_IMAGE_NAME=lowes-python-app
+docker build python/app -t $APP_IMAGE_NAME
+export OCP_REGISTRY_URL=$(oc get routes -A | grep openshift-image-registry | awk '{print $3}')
+docker login -u $(oc whoami) -p $(oc whoami -t) $OCP_REGISTRY_URL
+docker tag $APP_IMAGE_NAME $OCP_REGISTRY_URL/openshift/$APP_IMAGE_NAME
+docker push $OCP_REGISTRY_URL/openshift/$APP_IMAGE_NAME
 # service unavailable error

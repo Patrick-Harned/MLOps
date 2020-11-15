@@ -1,8 +1,10 @@
 # This Dockerfile is for building the app image to be later used in the Jenkins pipeline.
 
-FROM python:3.6
+#explicitly specify the docker registry so the image is not s2i if built in OCP
+FROM docker.io/library/python:3.6 
+#FROM python:3.6
 
-COPY . app/
+COPY . src/app/
 
-RUN pip install --no-cache-dir -r app/requirements.txt
-
+# install CI app requirements
+RUN pip install --no-cache-dir -r src/app/requirements.txt
