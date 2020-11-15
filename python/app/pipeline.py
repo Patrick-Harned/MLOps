@@ -210,6 +210,9 @@ class Pipeline:
 
         sofware_spec_uid = self.wml_client.software_specifications.get_id_by_name(self.software_spec)
 
+        # wml seems to do some kind of path resolution that caused a problem at some point
+        self.model_path = os.path.abspath(self.model_path)
+        print('model path: ', self.model_path)
         self.model_details = self.wml_client.repository.store_model(self.model_path, 
             meta_props={
                 self.wml_client.repository.ModelMetaNames.NAME: self.model_name,
