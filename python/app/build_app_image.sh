@@ -38,6 +38,7 @@ oc start-build $BC_NAME -F
 
 
 ### alt approach
+### build in docker and push to OCP registry
 export APP_IMAGE_NAME=lowes-python-app
 docker build python/app -t $APP_IMAGE_NAME
 export OCP_REGISTRY=$(oc get routes -A | grep openshift-image-registry | awk '{print $3}')
@@ -45,5 +46,13 @@ export OCP_REGISTRY=$(oc get routes -A | grep openshift-image-registry | awk '{p
 # `tr -d :` to remove the colon in kube:admin
 docker login -u $(oc whoami | tr -d :) -p $(oc whoami -t) $OCP_REGISTRY
 docker tag $APP_IMAGE_NAME $OCP_REGISTRY/openshift/$APP_IMAGE_NAME
-docker push $OCP_REGISTRY/openshift/$APP_IMAGE_NAME
+# latest to specify the most recent image build with the given path if 
+# multiple builds have been made and assigned this path
+docker push $OCP_REGISTRY/openshift/$APP_IMAGE_NAME:latest
 # service unavailable error
+
+
+
+### Remove images and artifacts from OCP
+oc delete image $(oc get image | grep $APP_IMAGE_NAME | awk '{print $1}')
+oc delete imagestream $(oc get imagestream | grep $APP_IMAGE_NAME | awk '{print $1}')
