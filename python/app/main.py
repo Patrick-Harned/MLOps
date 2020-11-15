@@ -19,11 +19,19 @@ if __name__ == "__main__":
 
     def abs_path(root_file, path):
         '''get abs path of file relative to parent of a reference file'''
+        if os.path.isabs(path):
+            return path
         _dir = os.path.dirname(os.path.abspath(root_file))
         return os.path.normpath(os.path.join(_dir, path))
 
 
-    CONFIG_PATH = abs_path(__file__, '../config.yaml')
+    if len(sys.argv)>1:
+        CONFIG_PATH = sys.argv[1]
+    else:
+        CONFIG_PATH = '../config.yaml'
+
+    # assumes relative paths are all relative to parent dir of main.py!!!
+    CONFIG_PATH = abs_path(__file__, CONFIG_PATH)
     try:   
         with open(CONFIG_PATH) as f:
             config = yaml.safe_load(f)
