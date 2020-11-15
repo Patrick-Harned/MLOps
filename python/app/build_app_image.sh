@@ -40,8 +40,10 @@ oc start-build $BC_NAME -F
 ### alt approach
 export APP_IMAGE_NAME=lowes-python-app
 docker build python/app -t $APP_IMAGE_NAME
-export OCP_REGISTRY_URL=$(oc get routes -A | grep openshift-image-registry | awk '{print $3}')
-docker login -u $(oc whoami) -p $(oc whoami -t) $OCP_REGISTRY_URL
-docker tag $APP_IMAGE_NAME $OCP_REGISTRY_URL/openshift/$APP_IMAGE_NAME
-docker push $OCP_REGISTRY_URL/openshift/$APP_IMAGE_NAME
+export OCP_REGISTRY=$(oc get routes -A | grep openshift-image-registry | awk '{print $3}')
+# image-registry-openshift-image-registry.apps.pwh.ocp.csplab.local
+# `tr -d :` to remove the colon in kube:admin
+docker login -u $(oc whoami | tr -d :) -p $(oc whoami -t) $OCP_REGISTRY
+docker tag $APP_IMAGE_NAME $OCP_REGISTRY/openshift/$APP_IMAGE_NAME
+docker push $OCP_REGISTRY/openshift/$APP_IMAGE_NAME
 # service unavailable error
