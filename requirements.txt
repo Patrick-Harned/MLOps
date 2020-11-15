@@ -1,3 +1,0 @@
-ibm-ai-openscale==2.2.1
-ibm-watson-machine-learning==1.0.15
-scikit-learn==0.22.1

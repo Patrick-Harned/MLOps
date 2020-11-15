@@ -1,0 +1,5 @@
+# requirements only fo the DS project to be deployed 
+scikit-learn==0.22.1
+pandas==0.25.3
+numpy==1.19.1
+requests==2.24.0

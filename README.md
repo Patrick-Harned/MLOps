@@ -33,7 +33,7 @@ then cleanup.
 
 ### Architecture Diagram
 
-![](./plot.png)<!-- -->
+![](./images/plot.png)<!-- -->
 
 # Schedule
 

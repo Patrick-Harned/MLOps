@@ -1,0 +1,12 @@
+.
+└── DS Project Root/
+    ├── Notebooks/
+    │   └── Train Model.ipynb
+    ├── Models/
+    │   └── model.tar.gz
+    ├── Data/
+    │   ├── train_data.csv
+    │   └── test_data.csv
+    ├── Jenkinsfile
+    ├── requirements.txt
+    └── cp4d_config.yaml
