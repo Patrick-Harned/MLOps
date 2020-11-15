@@ -16,7 +16,8 @@ kind: Pod
 spec:
   containers:
   - name: shell
-    image: image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app:latest
+    # image: image-registry.openshift-image-registry.svc:5000/openshift/lowes-python-app:latest
+    image:  image-registry.openshift-image-registry.svc:5000/openshift/mlopspipeline:latest
     command:
     - sleep
     args:
