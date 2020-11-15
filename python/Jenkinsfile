@@ -37,8 +37,9 @@ spec:
                 sh 'ls -1a'
                 sh 'ls / -1a'
                 sh 'ls ./python -1a'
-                // config.yaml path is relative the parent dir of main.py
-                sh 'python python/src/app/main.py ../../config.yaml'
+                sh 'ls /src/ -1a'
+                // config.yaml path is relative to source repo root
+                sh 'python /src/app/main.py python/config.yaml'
             }
         }
 
