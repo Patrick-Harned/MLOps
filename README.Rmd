@@ -97,7 +97,7 @@ digraph boxes_and_circles {
 
 
 ```{r, echo=FALSE}
-knitr::include_graphics("./plot.png")
+knitr::include_graphics("./images/plot.png")
 ```
 
 # Schedule  

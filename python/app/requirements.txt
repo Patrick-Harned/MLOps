@@ -1,0 +1,6 @@
+# requirements file exclusively for CI APP
+ibm-ai-openscale==2.2.1
+ibm-watson-machine-learning==1.0.15
+requests==2.24.0
+pandas==0.25.3
+PyYAML==5.3.1
