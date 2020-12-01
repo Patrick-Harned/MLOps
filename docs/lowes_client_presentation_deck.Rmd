@@ -1,8 +1,9 @@
 ---
 title: "Jenkins/CP4D Model Deployment and Monitoring"
-output: 
+output:
   ioslides_presentation:
-        widescreen: true
+    widescreen: yes
+    css: style.css
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +12,8 @@ knitr::opts_chunk$set(echo = FALSE)
 #knitr::opts_chunk$set(out.hieght = 50)
 ```
 
-## Streamlining the AI Lifecycle
+
+## Streamlining the AI Lifecycle {.codefont}
 
 **Problem**:   
 How to automate the deployment and risk management of version-controlled ML models ?
