@@ -1,0 +1,35 @@
+---
+title: "Jenkins integration with WML and Openscale"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Specifications
+
+- Data Scientist should be able to version control their model with commits triggering creation/updating of CP4D Assets
+- Integration with WML and Openscale  
+- Version control with Bitbucket/Jenkins integrations  
+
+## Limitations
+
+- CP4DCTL Not mature surrounding AIOS though support is coming 
+- Python SDK is mature but not user friendly
+
+
+## Prototype
+
+- Store the model in a WML repository with a python script that manages model deployments given user input
+- Data Scientist can then update configuration options with yaml and launch the Jenkins pipeline with commits
+- Leverage data connections from Cloud Pak for Data
+
+
+## Questions regarding client-side implementation
+
+ * Where does the client store data used to validate the model be stored? Github? A database? COS?
+ * Will the data used to validate change regularly? Who would be responsible for changing it?
+ * What ML frameworks is the client interested in leveraging Sklearn? Tensorflow? Spark? 
+ * Does the client have any idea of how they are going to use the data reported by WOS?
